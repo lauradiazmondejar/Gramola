@@ -1,0 +1,19 @@
+<div class="payment-container">
+    <h2>Suscripción Gramola</h2>
+    <p>Confirma tu cuenta realizando el pago de 10€.</p>
+
+    <div *ngIf="!clientSecret">
+        <button (click)="iniciarPago()">Pagar Suscripción</button>
+    </div>
+
+    <div id="payment-form" style="display: none; margin-top: 20px;">
+        <div style="border: 1px solid #ccc; padding: 10px; background: white; border-radius: 4px;">
+            <div id="card-element"></div>
+        </div>
+        <button style="margin-top: 15px;" (click)="pagar()">Confirmar Pago</button>
+    </div>
+
+    <div *ngIf="paymentStatus" style="margin-top: 20px; font-weight: bold;">
+        {{ paymentStatus }}
+    </div>
+</div>

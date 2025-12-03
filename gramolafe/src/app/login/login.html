@@ -1,0 +1,17 @@
+<div class="login-container">
+    <h2>Acceso al Bar</h2>
+    
+    <div class="form-group">
+        <label>Email:</label>
+        <input type="email" [(ngModel)]="email" name="email">
+    </div>
+
+    <div class="form-group">
+        <label>Contraseña:</label>
+        <input type="password" [(ngModel)]="pwd" name="password">
+    </div>
+
+    <button (click)="loguear()">Entrar y Conectar Spotify</button>
+
+    <p *ngIf="errorMsg" class="error">{{ errorMsg }}</p>
+</div>

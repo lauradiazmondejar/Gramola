@@ -1,0 +1,71 @@
+<div class="music-container">
+  <h2>Gramola Virtual</h2>
+
+  <div class="search-box card">
+    <h3>Buscar Cancion</h3>
+    <div class="search-input">
+      <input type="text" [(ngModel)]="searchTerm" placeholder="Titulo o artista..." (keyup.enter)="buscar()">
+      <button (click)="buscar()">Buscar</button>
+    </div>
+
+    <div class="results-list" *ngIf="tracks.length > 0">
+      <div class="track-item" *ngFor="let track of tracks">
+        <img [src]="track.album.images[2]?.url" alt="Cover">
+        <div class="track-info">
+          <strong>{{ track.name }}</strong>
+          <span>{{ track.artists[0].name }}</span>
+        </div>
+        <button class="btn-add" (click)="solicitarCancion(track)">Poner</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="msg success" *ngIf="successMsg">{{ successMsg }}</div>
+  <div class="msg error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+  <div class="card">
+    <h3>Dispositivos ({{ currentDevice ? 'Conectado: ' + currentDevice.name : 'Ninguno activo' }})</h3>
+    <button (click)="cargarDispositivos()">Buscar dispositivos</button>
+
+    <div *ngIf="devices.length === 0">
+      <p>No se encontraron dispositivos. Abre Spotify en este equipo y prueba de nuevo.</p>
+    </div>
+
+    <ul>
+      <li *ngFor="let device of devices" [class.active]="device.is_active">
+        <strong>{{ device.name }}</strong> ({{ device.type }})
+        <span *ngIf="device.is_active">· SONANDO AHORA</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Playlists del Local</h3>
+    <div class="playlist-grid">
+      <div class="playlist-item" *ngFor="let list of playlists">
+        <img *ngIf="list.images.length > 0" [src]="list.images[0].url" width="100" alt="playlist cover">
+        <p>{{ list.name }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="track-item" *ngFor="let track of tracks">
+    <button class="btn-add" (click)="solicitarCancion(track)">🎵 0.50€</button>
+</div>
+
+<div class="modal-overlay" *ngIf="pagandoCancion">
+    <div class="modal-content">
+        <h3>Confirmar Pedido</h3>
+        <p>Vas a poner: <strong>{{ cancionSeleccionada?.name }}</strong></p>
+        <p>Precio: <strong>0.50€</strong></p>
+        
+        <div class="stripe-box">
+            <div id="card-element-song"></div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-cancel" (click)="cancelarPago()">Cancelar</button>
+            <button class="btn-pay" (click)="confirmarPago()">💸 Pagar y Sonar</button>
+        </div>
+    </div>
+</div>

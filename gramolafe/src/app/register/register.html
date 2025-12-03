@@ -1,0 +1,42 @@
+<div class="register-container">
+    <h2>Registro de Bar</h2>
+    
+    <div class="form-group">
+        <label for="bar">Nombre del Bar:</label>
+        <input type="text" [(ngModel)]="bar" name="bar" placeholder="Ej: Bar Manolo">
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" [(ngModel)]="email" name="email" placeholder="correo@ejemplo.com">
+    </div>
+
+    <div class="form-group">
+        <label for="clientId">Client ID (Spotify):</label>
+        <input type="text" [(ngModel)]="clientId" name="clientId" placeholder="Tu ID de Spotify">
+    </div>
+
+    <div class="form-group">
+        <label for="clientSecret">Client Secret (Spotify):</label>
+        <input type="password" [(ngModel)]="clientSecret" name="clientSecret" placeholder="Tu Secret de Spotify">
+    </div>
+
+    <div class="form-group">
+        <label for="pwd1">Contraseña:</label>
+        <input type="password" [(ngModel)]="pwd1" name="pwd1">
+    </div>
+
+    <div class="form-group">
+        <label for="pwd2">Confirmar Contraseña:</label>
+        <input type="password" [(ngModel)]="pwd2" name="pwd2">
+    </div>
+
+    <button (click)="registrar()">Registrar Bar</button>
+
+    <div *ngIf="registroOK" class="success-msg">
+        ¡Registro exitoso! Revisa tu correo (o la consola de Java) para confirmar.
+    </div>
+    <div *ngIf="registroKO" class="error-msg">
+        Error en el registro. Revisa los datos o intenta de nuevo.
+    </div>
+</div>
