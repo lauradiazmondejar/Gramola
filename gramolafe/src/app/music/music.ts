@@ -23,6 +23,7 @@ export class Music implements OnInit {
   searchTerm = '';
   errorMsg = '';
   successMsg = '';
+  userSignature: string = '';
 
   stripe = Stripe('pk_test_51SIV2CRfAGkgoJHtjzPD344TigvazTauIQXxhm98Tk78mAuc7H79dD9XWvSO8cIfKNG8DS5MvEw5ldw6LhfUuEsg00QDV18Afz'); // <--- ¡PON TU CLAVE PÚBLICA!
   elements: any;
@@ -39,6 +40,7 @@ export class Music implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.userSignature = sessionStorage.getItem('signature') || '';
     this.cargarDispositivos();
     this.cargarPlaylists();
   }
@@ -88,25 +90,40 @@ export class Music implements OnInit {
       return;
     }
 
-    this.spotiService.addToQueue(track.uri, this.currentDevice.id).subscribe({
-      next: () => {
-        this.successMsg = `"${track.name}" anadida a la cola.`;
-        this.guardarEnHistorial(track);
-        setTimeout(() => this.successMsg = '', 3000);
+    this.errorMsg = '';
+
+    this.guardarEnHistorial(
+      track,
+      () => {
+        this.spotiService.addToQueue(track.uri, this.currentDevice.id).subscribe({
+          next: () => {
+            this.successMsg = `"${track.name}" anadida a la cola.`;
+            setTimeout(() => this.successMsg = '', 3000);
+          },
+          error: (err) => {
+            console.error(err);
+            const apiMsg = err?.error?.error?.message || err?.error?.message || '';
+            if (err.status === 404) {
+              this.errorMsg = 'No hay dispositivo activo en Spotify. Dale al Play en algún dispositivo y reintenta.';
+            } else if (err.status === 403) {
+              this.errorMsg = 'Spotify respondió 403 (Premium requerido o permiso denegado). Inicia sesión con la cuenta Premium y repite el login.';
+            } else {
+              this.errorMsg = apiMsg || 'No se pudo anadir. Revisa Spotify y vuelve a intentar.';
+            }
+          }
+        });
       },
-      error: (err) => {
-        console.error(err);
-        // Mostrar el mensaje real de Spotify para saber la causa (premium, sin dispositivo activo, etc.)
-        const apiMsg = err?.error?.error?.message || err?.error?.message || '';
-        if (err.status === 404) {
-          this.errorMsg = 'No hay dispositivo activo en Spotify. Dale al Play en algún dispositivo y reintenta.';
-        } else if (err.status === 403) {
-          this.errorMsg = 'Spotify respondió 403 (Premium requerido o permiso denegado). Inicia sesión con la cuenta Premium y repite el login.';
+      (err) => {
+        console.error('Error validando ubicación en backend', err);
+        if (err?.status === 403) {
+          this.errorMsg = 'Estás demasiado lejos del bar. La canción no se envía a Spotify.';
+        } else if (err?.status === 400) {
+          this.errorMsg = 'Este bar requiere que compartas ubicación. Activa tu GPS.';
         } else {
-          this.errorMsg = apiMsg || 'No se pudo anadir. Revisa Spotify y vuelve a intentar.';
+          this.errorMsg = 'No se pudo validar la ubicación. Inténtalo de nuevo.';
         }
       }
-    });
+    );
   }
 
   // --- LÓGICA DE PAGO ---
@@ -178,36 +195,85 @@ export class Music implements OnInit {
       return;
     }
 
-    // Añadimos a Spotify
-    this.spotiService.addToQueue(this.cancionSeleccionada.uri, this.currentDevice.id).subscribe({
-      next: () => {
-        this.successMsg = `¡"${this.cancionSeleccionada.name}" pagada y en cola!`;
-        
-        // Guardamos en BD
-        this.guardarEnHistorial(this.cancionSeleccionada);
-        
-        this.cancionSeleccionada = null;
-        setTimeout(() => this.successMsg = '', 4000);
+    this.errorMsg = '';
+
+    this.guardarEnHistorial(
+      this.cancionSeleccionada,
+      () => {
+        this.spotiService.addToQueue(this.cancionSeleccionada.uri, this.currentDevice.id).subscribe({
+          next: () => {
+            this.successMsg = `¡"${this.cancionSeleccionada.name}" pagada y en cola!`;
+            this.cancionSeleccionada = null;
+            setTimeout(() => this.successMsg = '', 4000);
+          },
+          error: (err) => {
+            this.errorMsg = 'Se cobró pero falló Spotify. Contacta con el camarero.';
+          }
+        });
       },
-      error: (err) => {
-        this.errorMsg = 'Se cobró pero falló Spotify. Contacta con el camarero.';
+      (err) => {
+        if (err?.status === 403) {
+          this.errorMsg = 'Estás demasiado lejos del bar. No se añade a la cola.';
+        } else if (err?.status === 400) {
+          this.errorMsg = 'Este bar requiere que compartas ubicación.';
+        } else {
+          this.errorMsg = 'No se pudo validar la ubicación. Reintenta.';
+        }
+        this.cancionSeleccionada = null;
       }
-    });
+    );
   }
 
-  guardarEnHistorial(track: any) {
-    const clientId = sessionStorage.getItem('clientId'); // Recuperamos quién es el bar
+  guardarEnHistorial(track: any, onOk?: () => void, onError?: (err: any) => void) {
+    const clientId = sessionStorage.getItem('clientId');
+    const email = sessionStorage.getItem('email');
+
+    if (!clientId || !email) {
+        this.errorMsg = 'Sesión inválida. Vuelve a iniciar sesión.';
+        if (onError) { onError({ status: 400 }); }
+        return;
+    }
     
-    const body = {
-        title: track.name,
-        artist: track.artists[0].name,
-        uri: track.uri,
-        clientId: clientId
+    const enviarAlBackend = (lat?: number, lon?: number) => {
+        const body = {
+            title: track.name,
+            artist: track.artists[0].name,
+            uri: track.uri,
+            clientId: clientId,
+            email: email,
+            lat: lat,
+            lon: lon
+        };
+
+        this.http.post('http://127.0.0.1:8080/music/add', body).subscribe({
+            next: () => {
+                console.log('Cancion validada en backend.');
+                if (onOk) { onOk(); }
+            },
+            error: (e) => {
+                console.error('Error guardando en BD', e);
+                if (onError) { onError(e); }
+                if (e.status === 403) {
+                    alert('Estas demasiado lejos del bar.');
+                } else if (e.status === 400) {
+                    alert('Hace falta tu ubicacion para pedir musica en este bar.');
+                }
+            }
+        });
     };
 
-    this.http.post('http://127.0.0.1:8080/music/add', body).subscribe({
-        next: () => console.log('Canción guardada en BD'),
-        error: (e) => console.error('Error guardando en BD', e)
-    });
-}
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                enviarAlBackend(pos.coords.latitude, pos.coords.longitude);
+            },
+            (err) => {
+                console.warn('No se pudo geolocalizar al cliente, enviando sin datos...', err);
+                enviarAlBackend();
+            }
+        );
+    } else {
+        enviarAlBackend();
+    }
+  }
 }

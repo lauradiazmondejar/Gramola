@@ -23,6 +23,10 @@ public class User {
     @JoinColumn(name = "creation_token_id", referencedColumnName = "id")
     private Token creationToken;
 
+    @jakarta.persistence.Lob
+    @jakarta.persistence.Column(columnDefinition = "LONGTEXT")
+    private String signature;
+
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
@@ -42,4 +46,13 @@ public class User {
     public void setCreationToken(Token token) {
         this.creationToken = token;
     }
+
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
+
+    public String getSignature() { return signature; }
+    public void setSignature(String signature) { this.signature = signature; }
 }

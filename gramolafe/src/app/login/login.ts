@@ -40,11 +40,18 @@ export class Login {
     }
 
     this.service.login(this.email, this.pwd).subscribe({
-      next: (clientId) => {
+      next: (resp) => {
+        const clientId = resp?.clientId;
+        const signature = resp?.signature;
         console.log('Login correcto. Client ID recibido:', clientId);
         
         // Guardamos el clientId en sesion para usarlo luego
         sessionStorage.setItem("clientId", clientId);
+        // Guardamos el email del bar logueado para validarlo en /music/add
+        sessionStorage.setItem("email", this.email!);
+        if (signature) {
+          sessionStorage.setItem('signature', signature);
+        }
 
         // Iniciamos el flujo de Spotify
         this.iniciarSpotifyOAuth(clientId);

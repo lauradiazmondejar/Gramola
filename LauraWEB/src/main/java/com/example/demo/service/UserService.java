@@ -22,7 +22,7 @@ public class UserService {
     @Autowired
     private TokenDao tokenDao;
 
-    public String register(String bar, String email, String pwd, String clientId, String clientSecret) {
+    public String register(String bar, String email, String pwd, String clientId, String clientSecret, Double lat, Double lon, String signature) {
         Optional<User> optUser = userDao.findById(email);
         
         if (optUser.isPresent()) {
@@ -50,6 +50,9 @@ public class UserService {
         user.setClientId(clientId);
         user.setClientSecret(clientSecret);
         user.setCreationToken(new Token());
+        user.setLatitude(lat);
+        user.setLongitude(lon);
+        user.setSignature(signature);
 
         userDao.save(user);
 
@@ -109,5 +112,21 @@ public class UserService {
     public com.example.demo.model.User getUserByClientId(String clientId) {
         return userDao.findFirstByClientId(clientId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bar no encontrado para este Client ID"));
+    }
+
+    // Este método es igual que 'login', pero devuelve el objeto User completo
+    public User authenticate(String email, String pwd) {
+        // 1. Buscar al usuario
+        User user = userDao.findById(email)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        // 2. Verificar contraseña (encriptándola primero para comparar)
+        String pwdEncrypted = DigestUtils.sha512Hex(pwd);
+        if (!user.getPassword().equals(pwdEncrypted)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Contraseña incorrecta");
+        }
+
+        // 3. Devolver el usuario completo (con firma, coordenadas, etc.)
+        return user;
     }
 }

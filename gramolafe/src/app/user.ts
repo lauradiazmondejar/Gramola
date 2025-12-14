@@ -12,25 +12,29 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  // 2. CORREGIDO: Añadidos los argumentos que faltaban (bar, clientId, clientSecret)
-  register(bar: string, email: string, pwd1: string, pwd2: string, clientId: string, clientSecret: string) {
+  // 2. CORREGIDO: Añadidos los argumentos que faltaban (bar, clientId, clientSecret, firma)
+  register(bar: string, email: string, pwd1: string, pwd2: string, clientId: string, clientSecret: string, lat?: number, lon?: number, signature?: string) {
     let info = {
       bar: bar,
       email: email,
-      pwd1: pwd1, 
+      pwd1: pwd1,
       pwd2: pwd2,
       clientId: clientId,
-      clientSecret: clientSecret
+      clientSecret: clientSecret,
+      lat: lat, // Nuevo
+      lon: lon,  // Nuevo
+      signature: signature
+      
     }
     return this.http.post<any>(this.apiUrl, info);
   }
 
-  login(email: string, pwd: string): Observable<string> {
+  login(email: string, pwd: string): Observable<any> {
     let info = {
       email: email,
       password: pwd
     };
-    // Esperamos una respuesta de texto (el clientId)
-    return this.http.post(this.apiUrl.replace('register', 'login'), info, { responseType: 'text' });
+    // Esperamos JSON con clientId y firma
+    return this.http.post(this.apiUrl.replace('register', 'login'), info);
   }
 }

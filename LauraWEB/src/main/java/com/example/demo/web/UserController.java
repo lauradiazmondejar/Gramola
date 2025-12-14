@@ -26,14 +26,17 @@ public class UserController {
     private UserService service;
     
     @PostMapping("/register")
-    public void register(@RequestBody Map<String, String> body) {
+    public void register(@RequestBody Map<String, Object> body) {
         // 1. Leemos todos los campos
-        String email = body.get("email");
-        String pwd1 = body.get("pwd1");
-        String pwd2 = body.get("pwd2");
-        String bar = body.get("bar"); // <-- NUEVO
-        String clientId = body.get("clientId"); // <-- NUEVO
-        String clientSecret = body.get("clientSecret"); // <-- NUEVO
+        String email = (String) body.get("email");
+        String pwd1 = (String) body.get("pwd1");
+        String pwd2 = (String) body.get("pwd2");
+        String bar = (String) body.get("bar");
+        String clientId = (String) body.get("clientId");
+        String clientSecret = (String) body.get("clientSecret");
+        Double lat = body.get("lat") != null ? Double.valueOf(body.get("lat").toString()) : null;
+        Double lon = body.get("lon") != null ? Double.valueOf(body.get("lon").toString()) : null;
+        String signature = (String) body.get("signature");
 
         // 2. Validamos (tu código de validación estaba genial)
         if (pwd1 == null || !pwd1.equals(pwd2)) {
@@ -45,10 +48,13 @@ public class UserController {
         if (email == null || !email.contains("@") || !email.contains(".")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is not valid");
         }
+        if (signature == null || signature.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Signature is required");
+        }
         // (Añade validaciones para bar, clientId, etc. si lo ves necesario)
 
         // 3. ¡LLAMAMOS AL SERVICIO! (Esto faltaba)
-        this.service.register(bar, email, pwd1, clientId, clientSecret);
+        this.service.register(bar, email, pwd1, clientId, clientSecret, lat, lon, signature);
     }
 
     @DeleteMapping("/delete")
@@ -62,15 +68,29 @@ public class UserController {
         response.sendRedirect("http://127.0.0.1:4200/payment?token=" + token);
     }
 
+    // Cambiamos el tipo de retorno de String a Map<String, String>
     @PostMapping("/login")
-    public String login(@RequestBody Map<String, String> body) {
+    public Map<String, String> login(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String pwd = body.get("password");
 
         if (email == null || pwd == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Faltan credenciales");
         }
+        
+        com.example.demo.model.User user = this.service.authenticate(email, pwd); 
 
-        return this.service.login(email, pwd);
+        // Construimos la respuesta JSON
+        Map<String, String> response = new java.util.HashMap<>();
+        response.put("clientId", user.getClientId());
+        
+        // Aquí enviamos la firma (si existe)
+        if (user.getSignature() != null) {
+            response.put("signature", user.getSignature());
+        } else {
+            response.put("signature", ""); // O una imagen por defecto
+        }
+
+        return response;
     }
 }

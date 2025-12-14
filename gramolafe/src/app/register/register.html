@@ -31,6 +31,31 @@
         <input type="password" [(ngModel)]="pwd2" name="pwd2">
     </div>
 
+    <div class="form-group location-box" style="border: 1px solid #ddd; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        <label><strong>Ubicación del Bar</strong> (Elige una opción):</label>
+        
+        <button class="btn-geo" (click)="obtenerUbicacion()">📍 Usar mi GPS actual</button>
+        
+        <p style="text-align: center; margin: 5px;">--- O ---</p>
+
+        <div style="display: flex; gap: 5px;">
+            <input type="text" [(ngModel)]="address" name="address" placeholder="Ej: Calle Gran Vía 1, Madrid">
+            <button (click)="obtenerCoordenadasPorDireccion()" style="width: auto;">🔍 Buscar</button>
+        </div>
+
+        <p class="small-info" [style.color]="lat ? 'green' : 'red'">
+            {{ ubicacionMsg }}
+        </p>
+    </div>
+
+    <div class="form-group signature-box">
+        <label>Firma del Dueño:</label>
+        <canvas #canvasFirma width="400" height="150" style="border: 1px solid #000; background: #fff; cursor: crosshair; touch-action: none;"></canvas>
+        
+        <br>
+        <button type="button" (click)="limpiarFirma()" style="background: #ccc; margin-top: 5px;">Borrar Firma</button>
+    </div>
+
     <button (click)="registrar()">Registrar Bar</button>
 
     <div *ngIf="registroOK" class="success-msg">

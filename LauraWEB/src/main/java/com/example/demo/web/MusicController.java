@@ -20,12 +20,16 @@ public class MusicController {
     private MusicService musicService;
 
     @PostMapping("/add")
-    public void addSong(@RequestBody Map<String, String> body) {
-        String title = body.get("title");
-        String artist = body.get("artist");
-        String uri = body.get("uri");
-        String clientId = body.get("clientId"); // Necesitamos saber qué bar es
+    public void addSong(@RequestBody Map<String, Object> body) {
+        String title = (String) body.get("title");
+        String artist = (String) body.get("artist");
+        String uri = (String) body.get("uri");
+        String email = (String) body.get("email");
+        String clientId = (String) body.get("clientId");
 
-        this.musicService.addSong(title, artist, uri, clientId);
+        Double userLat = body.get("lat") != null ? Double.valueOf(body.get("lat").toString()) : null;
+        Double userLon = body.get("lon") != null ? Double.valueOf(body.get("lon").toString()) : null;
+
+        this.musicService.addSong(title, artist, uri, email, clientId, userLat, userLon);
     }
 }
