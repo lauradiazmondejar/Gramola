@@ -1,67 +1,90 @@
-<div class="register-container">
-    <h2>Registro de Bar</h2>
-    
-    <div class="form-group">
-        <label for="bar">Nombre del Bar:</label>
-        <input type="text" [(ngModel)]="bar" name="bar" placeholder="Ej: Bar Manolo">
+<div class="page">
+  <div class="card register-card">
+    <div class="section-title">
+      <div>
+        <p class="pill">Nuevo bar</p>
+        <h2>Registro</h2>
+        <p class="muted">Crea tu cuenta, conecta Spotify y guarda la ubicación del local.</p>
+      </div>
+      <a class="btn btn-ghost" routerLink="/login">Ya tengo cuenta</a>
     </div>
 
-    <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="email" [(ngModel)]="email" name="email" placeholder="correo@ejemplo.com">
-    </div>
+    <div class="register-layout">
+      <div class="card soft left-card">
+        <div class="section-title">
+          <h3>Datos del bar</h3>
+        </div>
+        <div class="stack">
+          <div class="input-group">
+            <label class="label">Nombre del bar</label>
+            <input type="text" [(ngModel)]="bar" placeholder="Bar Manolo">
+          </div>
+          <div class="input-group">
+            <label class="label">Email</label>
+            <input type="email" [(ngModel)]="email" placeholder="correo@ejemplo.com">
+          </div>
+          <div class="input-group">
+            <label class="label">Client ID (Spotify)</label>
+            <input type="text" [(ngModel)]="clientId" placeholder="Tu ID de Spotify">
+          </div>
+          <div class="input-group">
+            <label class="label">Client Secret (Spotify)</label>
+            <input type="password" [(ngModel)]="clientSecret" placeholder="Tu secret de Spotify">
+          </div>
+          <div class="row">
+            <div class="input-group" style="flex:1">
+              <label class="label">Contraseña</label>
+              <input type="password" [(ngModel)]="pwd1" placeholder="••••••••">
+            </div>
+            <div class="input-group" style="flex:1">
+              <label class="label">Confirmar contraseña</label>
+              <input type="password" [(ngModel)]="pwd2" placeholder="••••••••">
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div class="form-group">
-        <label for="clientId">Client ID (Spotify):</label>
-        <input type="text" [(ngModel)]="clientId" name="clientId" placeholder="Tu ID de Spotify">
-    </div>
-
-    <div class="form-group">
-        <label for="clientSecret">Client Secret (Spotify):</label>
-        <input type="password" [(ngModel)]="clientSecret" name="clientSecret" placeholder="Tu Secret de Spotify">
-    </div>
-
-    <div class="form-group">
-        <label for="pwd1">Contraseña:</label>
-        <input type="password" [(ngModel)]="pwd1" name="pwd1">
-    </div>
-
-    <div class="form-group">
-        <label for="pwd2">Confirmar Contraseña:</label>
-        <input type="password" [(ngModel)]="pwd2" name="pwd2">
-    </div>
-
-    <div class="form-group location-box" style="border: 1px solid #ddd; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-        <label><strong>Ubicación del Bar</strong> (Elige una opción):</label>
-        
-        <button class="btn-geo" (click)="obtenerUbicacion()">📍 Usar mi GPS actual</button>
-        
-        <p style="text-align: center; margin: 5px;">--- O ---</p>
-
-        <div style="display: flex; gap: 5px;">
-            <input type="text" [(ngModel)]="address" name="address" placeholder="Ej: Calle Gran Vía 1, Madrid">
-            <button (click)="obtenerCoordenadasPorDireccion()" style="width: auto;">🔍 Buscar</button>
+      <div class="right-col">
+        <div class="card soft location-card">
+          <div class="section-title">
+            <h3>Ubicación del bar</h3>
+          </div>
+          <div class="row wrap">
+            <button class="btn btn-secondary" type="button" (click)="obtenerUbicacion()">Usar mi GPS</button>
+            <span class="muted">o</span>
+            <div class="input-group" style="flex:1">
+              <label class="label">Buscar dirección</label>
+              <div class="location-row">
+                <input type="text" [(ngModel)]="address" placeholder="Calle, número, ciudad">
+                <button class="btn btn-ghost" type="button" (click)="obtenerCoordenadasPorDireccion()">Buscar</button>
+              </div>
+            </div>
+          </div>
+          <p class="muted" [style.color]="lat ? '#047857' : '#b91c1c'">{{ ubicacionMsg }}</p>
         </div>
 
-        <p class="small-info" [style.color]="lat ? 'green' : 'red'">
-            {{ ubicacionMsg }}
-        </p>
+        <div class="card soft canvas-box signature-card">
+          <div class="section-title">
+            <h3>Firma del dueño</h3>
+          </div>
+          <p class="muted">Dibuja la firma del responsable del bar.</p>
+          <canvas #canvasFirma width="400" height="150"></canvas>
+          <button class="btn btn-ghost" type="button" (click)="limpiarFirma()">Borrar firma</button>
+        </div>
+      </div>
     </div>
 
-    <div class="form-group signature-box">
-        <label>Firma del Dueño:</label>
-        <canvas #canvasFirma width="400" height="150" style="border: 1px solid #000; background: #fff; cursor: crosshair; touch-action: none;"></canvas>
-        
-        <br>
-        <button type="button" (click)="limpiarFirma()" style="background: #ccc; margin-top: 5px;">Borrar Firma</button>
+    <div class="section-title actions">
+      <p class="muted">Al registrar aceptas recibir el correo de confirmación.</p>
+      <button class="btn" (click)="registrar()">Registrar bar</button>
     </div>
 
-    <button (click)="registrar()">Registrar Bar</button>
-
-    <div *ngIf="registroOK" class="success-msg">
-        ¡Registro exitoso! Revisa tu correo (o la consola de Java) para confirmar.
+    <div *ngIf="errorMsg" class="feedback error">{{ errorMsg }}</div>
+    <div *ngIf="registroOK" class="feedback success">
+      Registro exitoso. Revisa tu correo para confirmar y pagar.
     </div>
-    <div *ngIf="registroKO" class="error-msg">
-        Error en el registro. Revisa los datos o intenta de nuevo.
+    <div *ngIf="registroKO" class="feedback error">
+      Error en el registro. Revisa los datos o intenta de nuevo.
     </div>
+  </div>
 </div>

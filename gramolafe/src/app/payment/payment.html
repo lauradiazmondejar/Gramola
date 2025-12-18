@@ -1,27 +1,49 @@
-<div class="payment-container">
-    <h2>Suscripci\u00f3n Gramola</h2>
-    <p>Selecciona plan. Los importes vienen de BD.</p>
-
-    <div class="plan-selector" *ngIf="!clientSecret">
-        <label>
-            <input type="radio" name="plan" value="subscription_monthly" [(ngModel)]="planCode">
-            Mensual ({{ prices['subscription_monthly'] || '?' }} cts)
-        </label>
-        <label>
-            <input type="radio" name="plan" value="subscription_annual" [(ngModel)]="planCode">
-            Anual ({{ prices['subscription_annual'] || '?' }} cts)
-        </label>
-        <button (click)="iniciarPago()" [disabled]="!token">Pagar suscripci\u00f3n</button>
+<div class="page">
+  <div class="card payment-card">
+    <div class="section-title">
+      <div>
+        <p class="pill">Suscripción</p>
+        <h2>Confirma tu cuenta</h2>
+        <p class="muted">Elige el plan y finaliza el pago seguro.</p>
+      </div>
+      <div class="chip">Mail enviado tras el pago</div>
     </div>
 
-    <div id="payment-form" style="display: none; margin-top: 20px;">
-        <div style="border: 1px solid #ccc; padding: 10px; background: white; border-radius: 4px;">
-            <div id="card-element"></div>
+    <div class="stack">
+      <div class="card soft">
+        <div class="input-group">
+          <label class="label">Plan</label>
+          <div class="plan-selector">
+            <label class="plan-option">
+              <input type="radio" name="plan" value="subscription_monthly" [(ngModel)]="planCode">
+              <div>
+                <div class="label">Mensual</div>
+                <p class="muted">{{ prices['subscription_monthly'] || '?' }} cts</p>
+              </div>
+            </label>
+            <label class="plan-option">
+              <input type="radio" name="plan" value="subscription_annual" [(ngModel)]="planCode">
+              <div>
+                <div class="label">Anual</div>
+                <p class="muted">{{ prices['subscription_annual'] || '?' }} cts</p>
+              </div>
+            </label>
+          </div>
         </div>
-        <button style="margin-top: 15px;" (click)="pagar()">Confirmar Pago</button>
-    </div>
+        <button class="btn" (click)="iniciarPago()" [disabled]="!token">Pagar suscripción</button>
+      </div>
 
-    <div *ngIf="paymentStatus" style="margin-top: 20px; font-weight: bold;">
+      <div id="payment-form" style="display: none; margin-top: 10px;">
+        <div class="card soft">
+          <h3>Datos de la tarjeta</h3>
+          <div id="card-element"></div>
+          <button class="btn" style="margin-top: 12px;" (click)="pagar()">Confirmar pago</button>
+        </div>
+      </div>
+
+      <div *ngIf="paymentStatus" class="feedback" [ngClass]="paymentStatus.includes('Error') ? 'error' : 'success'">
         {{ paymentStatus }}
+      </div>
     </div>
+  </div>
 </div>

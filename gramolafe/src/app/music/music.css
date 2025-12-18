@@ -1,40 +1,139 @@
-/* src/app/music/music.css */
-.search-box { margin-bottom: 20px; }
-.search-input { display: flex; gap: 10px; margin-bottom: 15px; }
-.search-input input { flex: 1; padding: 10px; }
-
-.results-list { max-height: 300px; overflow-y: auto; }
-.track-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; }
-.track-item img { width: 50px; height: 50px; border-radius: 4px; }
-.track-info { flex: 1; display: flex; flex-direction: column; }
-.btn-add { background-color: #1db954; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; }
-
-.msg { padding: 10px; margin: 10px 0; border-radius: 4px; text-align: center; }
-.msg.success { background-color: #d4edda; color: #155724; }
-.msg.error { background-color: #f8d7da; color: #721c24; }
-
-
-/* Fondo oscuro transparente */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 1000;
+.music-grid {
+  display: grid;
+  gap: 16px;
 }
 
-/* La cajita blanca */
+.search-input {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.search-input input {
+  flex: 1;
+  min-width: 220px;
+}
+
+.results-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.track-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.track-item img {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.track-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.track-info span { color: var(--muted); }
+
+.device-list, .queue-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  display: grid;
+  gap: 8px;
+}
+
+.device-item, .queue-item {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.device-item.active {
+  border-color: #c4b5fd;
+  background: #f6f4ff;
+}
+
+.playlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.playlist-item {
+  text-align: center;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+}
+
+.playlist-item img {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.msg {
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.msg.success { background: rgba(34,197,94,0.12); color: #047857; border: 1px solid rgba(34,197,94,0.3); }
+.msg.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecdd3; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
 .modal-content {
-    background: white; padding: 20px; border-radius: 8px;
-    width: 90%; max-width: 400px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    text-align: center;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  width: min(480px, 100%);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
 }
 
 .stripe-box {
-    border: 1px solid #eee; padding: 10px; border-radius: 4px;
-    margin: 15px 0; background: #f9f9f9;
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px dashed #e4ddff;
+  border-radius: 12px;
+  background: #faf7ff;
 }
 
-.modal-actions { display: flex; justify-content: space-between; gap: 10px; }
-.btn-pay { background: #6772e5; color: white; flex: 1; }
-.btn-cancel { background: #ccc; color: black; flex: 1; }
+.btn-pay { background: var(--primary); color: #fff; border: none; padding: 10px 14px; border-radius: 10px; cursor: pointer; }
+.btn-cancel { background: #f3f4f6; border: 1px solid var(--border); padding: 10px 14px; border-radius: 10px; cursor: pointer; }
+
+@media (max-width: 640px) {
+  .header-actions { flex-wrap: wrap; }
+}

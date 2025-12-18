@@ -1,11 +1,24 @@
-<div class="card">
-  <h2>Restablecer contraseña</h2>
-  <p>Introduce tu nueva contraseña.</p>
+<div class="card" style="max-width: 520px; margin: 0 auto;">
+  <div class="section-title">
+    <div>
+      <p class="pill">Restablecer</p>
+      <h2>Nueva contraseña</h2>
+      <p class="muted">Introduce y confirma tu nueva contraseña.</p>
+    </div>
+  </div>
 
-  <input type="password" [(ngModel)]="pwd1" placeholder="Nueva contraseña">
-  <input type="password" [(ngModel)]="pwd2" placeholder="Confirmar contraseña">
-  <button (click)="reset()">Cambiar</button>
+  <div class="stack">
+    <div class="input-group">
+      <label>Nueva contraseña</label>
+      <input type="password" [(ngModel)]="pwd1">
+    </div>
+    <div class="input-group">
+      <label>Confirmar contraseña</label>
+      <input type="password" [(ngModel)]="pwd2">
+    </div>
+    <button class="btn" (click)="reset()">Cambiar</button>
 
-  <p *ngIf="success" style="color: green;">{{ success }}</p>
-  <p *ngIf="error" style="color: red;">{{ error }}</p>
+    <p *ngIf="success" class="feedback success">{{ success }}</p>
+    <p *ngIf="error" class="feedback error">{{ error }}</p>
+  </div>
 </div>

@@ -1,9 +1,20 @@
-<div class="card">
-  <h2>Recuperar contraseña</h2>
-  <p>Introduce tu email y te enviaremos un enlace.</p>
-  <input type="email" [(ngModel)]="email" placeholder="tu@correo.com">
-  <button (click)="solicitar()">Enviar enlace</button>
+<div class="card" style="max-width: 520px; margin: 0 auto;">
+  <div class="section-title">
+    <div>
+      <p class="pill">Recuperar acceso</p>
+      <h2>Olvidé mi contraseña</h2>
+      <p class="muted">Te enviaremos un enlace para restablecerla.</p>
+    </div>
+  </div>
 
-  <p *ngIf="success" style="color: green;">{{ success }}</p>
-  <p *ngIf="error" style="color: red;">{{ error }}</p>
+  <div class="stack">
+    <div class="input-group">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="email" placeholder="tu@correo.com">
+    </div>
+    <button class="btn" (click)="solicitar()">Enviar enlace</button>
+
+    <p *ngIf="success" class="feedback success">{{ success }}</p>
+    <p *ngIf="error" class="feedback error">{{ error }}</p>
+  </div>
 </div>

@@ -1,17 +1,24 @@
 <div class="header-bar">
-    <h2>Panel de Control</h2>
-    <img [src]="userSignature" alt="Firma del dueno" style="height: 50px; border: 1px solid #ccc;">
-    <button (click)="logout()">Cerrar sesión</button>
+  <div>
+    <p class="pill">Gramola</p>
+    <h2>Panel de control</h2>
+    <p class="muted">Gestiona canciones, dispositivos y playlists del local.</p>
+  </div>
+  <div class="header-actions">
+    <span *ngIf="currentDevice" class="chip">Conectado: {{ currentDevice.name }}</span>
+    <img [src]="userSignature" alt="Firma del dueño" style="height: 46px; border: 1px solid var(--border); border-radius: 8px;">
+    <button class="btn btn-ghost" (click)="logout()">Cerrar sesión</button>
+  </div>
 </div>
 
-<div class="music-container">
-  <h2>Gramola Virtual</h2>
-
-  <div class="search-box card">
-    <h3>Buscar cancion</h3>
+<div class="music-grid">
+  <div class="card">
+    <div class="section-title">
+      <h3>Buscar canción</h3>
+    </div>
     <div class="search-input">
-      <input type="text" [(ngModel)]="searchTerm" placeholder="Titulo o artista..." (keyup.enter)="buscar()">
-      <button (click)="buscar()">Buscar</button>
+      <input type="text" [(ngModel)]="searchTerm" placeholder="Título o artista..." (keyup.enter)="buscar()">
+      <button class="btn" (click)="buscar()">Buscar</button>
     </div>
 
     <div class="results-list" *ngIf="tracks.length > 0">
@@ -21,50 +28,55 @@
           <strong>{{ track.name }}</strong>
           <span>{{ track.artists[0].name }}</span>
         </div>
-        <button class="btn-add" (click)="solicitarCancion(track)">
+        <button class="btn btn-secondary" (click)="solicitarCancion(track)">
           Poner ({{ songPriceCents != null ? (songPriceCents / 100) : '?' }} €)
         </button>
       </div>
     </div>
   </div>
 
-  <div class="msg success" *ngIf="successMsg">{{ successMsg }}</div>
-  <div class="msg error" *ngIf="errorMsg">{{ errorMsg }}</div>
+  <div *ngIf="successMsg" class="msg success">{{ successMsg }}</div>
+  <div *ngIf="errorMsg" class="msg error">{{ errorMsg }}</div>
 
   <div class="card">
-    <h3>Dispositivos ({{ currentDevice ? 'Conectado: ' + currentDevice.name : 'Ninguno activo' }})</h3>
-    <button (click)="cargarDispositivos()">Buscar dispositivos</button>
-
-    <div *ngIf="devices.length === 0">
-      <p>No se encontraron dispositivos. Abre Spotify en este equipo y prueba de nuevo.</p>
+    <div class="section-title">
+      <h3>Dispositivos</h3>
+      <button class="btn btn-ghost" (click)="cargarDispositivos()">Recargar</button>
     </div>
-
-    <ul>
-      <li *ngFor="let device of devices" [class.active]="device.is_active">
+    <p class="muted">{{ currentDevice ? 'Conectado: ' + currentDevice.name : 'Ningún dispositivo activo' }}</p>
+    <div *ngIf="devices.length === 0">
+      <p class="muted">Abre Spotify en este equipo y prueba de nuevo.</p>
+    </div>
+    <ul class="device-list">
+      <li class="device-item" *ngFor="let device of devices" [class.active]="device.is_active">
         <strong>{{ device.name }}</strong> ({{ device.type }})
-        <span *ngIf="device.is_active"> Sonando ahora</span>
+        <span *ngIf="device.is_active"> · Sonando ahora</span>
       </li>
     </ul>
   </div>
 
   <div class="card">
-    <h3>Playlists del local</h3>
+    <div class="section-title">
+      <h3>Playlists del local</h3>
+    </div>
     <div class="playlist-grid">
       <div class="playlist-item" *ngFor="let list of playlists">
-        <img *ngIf="list.images.length > 0" [src]="list.images[0].url" width="100" alt="playlist cover">
+        <img *ngIf="list.images.length > 0" [src]="list.images[0].url" alt="playlist cover">
         <p>{{ list.name }}</p>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <h3>Cola actual</h3>
-    <button (click)="cargarCola()">Recargar cola</button>
+    <div class="section-title">
+      <h3>Cola actual</h3>
+      <button class="btn btn-ghost" (click)="cargarCola()">Recargar cola</button>
+    </div>
     <div *ngIf="nowPlaying">
       <p>Reproduciendo: <strong>{{ nowPlaying?.name }}</strong> - {{ nowPlaying?.artists?.[0]?.name }}</p>
     </div>
-    <ul>
-      <li *ngFor="let item of queue">
+    <ul class="queue-list">
+      <li class="queue-item" *ngFor="let item of queue">
         {{ item.name }} - {{ item.artists?.[0]?.name }}
       </li>
     </ul>
@@ -72,18 +84,18 @@
 </div>
 
 <div class="modal-overlay" *ngIf="pagandoCancion">
-    <div class="modal-content">
-        <h3>Confirmar pedido</h3>
-        <p>Vas a poner: <strong>{{ cancionSeleccionada?.name }}</strong></p>
-        <p>Precio: <strong>{{ songPriceCents != null ? (songPriceCents / 100) : '?' }} €</strong></p>
-        
-        <div class="stripe-box">
-            <div id="card-element-song"></div>
-        </div>
+  <div class="modal-content">
+    <h3>Confirmar pedido</h3>
+    <p>Vas a poner: <strong>{{ cancionSeleccionada?.name }}</strong></p>
+    <p>Precio: <strong>{{ songPriceCents != null ? (songPriceCents / 100) : '?' }} €</strong></p>
 
-        <div class="modal-actions">
-            <button class="btn-cancel" (click)="cancelarPago()">Cancelar</button>
-            <button class="btn-pay" (click)="confirmarPago()">Pagar y sonar</button>
-        </div>
+    <div class="stripe-box">
+      <div id="card-element-song"></div>
     </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="cancelarPago()">Cancelar</button>
+      <button class="btn-pay" (click)="confirmarPago()">Pagar y sonar</button>
+    </div>
+  </div>
 </div>

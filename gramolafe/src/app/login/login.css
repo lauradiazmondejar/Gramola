@@ -1,0 +1,18 @@
+.auth-card {
+  width: min(540px, 100%);
+  margin: 0 auto;
+}
+
+.full { width: 100%; }
+
+.row.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+@media (max-width: 540px) {
+  .row.between { flex-direction: column; align-items: flex-start; }
+  .auth-card { padding: 18px; }
+}

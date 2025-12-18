@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserService } from '../user'; // Asegúrate de que la ruta sea correcta
+import { UserService } from '../user';
 
 @Component({
   selector: 'app-register',
@@ -11,8 +11,6 @@ import { UserService } from '../user'; // Asegúrate de que la ruta sea correcta
   styleUrl: './register.css'
 })
 export class Register implements AfterViewInit {
-
-  // Nuevos campos
   bar?: string;
   email?: string;
   pwd1?: string;
@@ -21,17 +19,18 @@ export class Register implements AfterViewInit {
   clientSecret?: string;
   lat?: number;
   lon?: number;
-  ubicacionMsg: string = '';
-  address: string = '';
+  ubicacionMsg = '';
+  address = '';
+  errorMsg?: string;
 
-  registroOK: boolean = false;
-  registroKO: boolean = false;
+  registroOK = false;
+  registroKO = false;
 
   @ViewChild('canvasFirma') canvasRef!: ElementRef;
   private cx!: CanvasRenderingContext2D;
   private isDrawing = false;
 
-  constructor(private service: UserService) { }
+  constructor(private service: UserService) {}
 
   obtenerUbicacion() {
     if (navigator.geolocation) {
@@ -40,11 +39,11 @@ export class Register implements AfterViewInit {
         (position) => {
           this.lat = position.coords.latitude;
           this.lon = position.coords.longitude;
-          this.ubicacionMsg = `✅ Ubicación guardada: ${this.lat.toFixed(4)}, ${this.lon.toFixed(4)}`;
+          this.ubicacionMsg = `Ok. Ubicación guardada: ${this.lat.toFixed(4)}, ${this.lon.toFixed(4)}`;
         },
         (error) => {
           console.error(error);
-          this.ubicacionMsg = '❌ Error: No se pudo obtener la ubicación. Permite el acceso GPS.';
+          this.ubicacionMsg = 'Error: No se pudo obtener la ubicación. Permite el acceso GPS.';
         }
       );
     } else {
@@ -55,35 +54,43 @@ export class Register implements AfterViewInit {
   registrar() {
     this.registroOK = false;
     this.registroKO = false;
+    this.errorMsg = undefined;
 
-    // 1. Convertimos el dibujo a una cadena Base64
     const signatureImage = this.canvasRef.nativeElement.toDataURL();
 
-    // Validación básica
     if (!this.bar || !this.email || !this.pwd1 || !this.clientId || !this.clientSecret) {
-      alert('Por favor, rellena todos los campos.');
+      this.errorMsg = 'Por favor, rellena todos los campos.';
       return;
     }
 
-    if (this.pwd1 != this.pwd2) {
-      alert('Las contraseñas no coinciden');
+    if (this.pwd1 !== this.pwd2) {
+      this.errorMsg = 'Las contraseñas no coinciden';
       return;
     }
 
-    // Llamada al servicio con TODOS los datos
-    this.service.register(this.bar!, this.email!, this.pwd1!, this.pwd2!, this.clientId!, this.clientSecret!, this.lat, this.lon, signatureImage)
-      .subscribe({
-        next: (response) => {
-          console.log('Registro exitoso', response);
-          this.registroOK = true;
-          this.registroKO = false;
-        },
-        error: (error) => {
-          console.error('Error en el registro', error);
-          this.registroKO = true;
-          this.registroOK = false;
-        }
-      });
+    this.service.register(
+      this.bar!,
+      this.email!,
+      this.pwd1!,
+      this.pwd2!,
+      this.clientId!,
+      this.clientSecret!,
+      this.lat,
+      this.lon,
+      signatureImage
+    ).subscribe({
+      next: (response) => {
+        console.log('Registro exitoso', response);
+        this.registroOK = true;
+        this.registroKO = false;
+      },
+      error: (error) => {
+        console.error('Error en el registro', error);
+        this.errorMsg = 'Error en el registro. Revisa los datos o intenta de nuevo.';
+        this.registroKO = true;
+        this.registroOK = false;
+      }
+    });
   }
 
   async obtenerCoordenadasPorDireccion() {
@@ -122,7 +129,6 @@ export class Register implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Configuramos el contexto de dibujo una vez cargada la vista
     const canvasEl: HTMLCanvasElement = this.canvasRef.nativeElement;
     this.cx = canvasEl.getContext('2d')!;
 
@@ -130,19 +136,16 @@ export class Register implements AfterViewInit {
     this.cx.lineCap = 'round';
     this.cx.strokeStyle = '#000';
 
-    // Capturamos eventos de RATÓN
     canvasEl.addEventListener('mousedown', this.startDrawing.bind(this));
     canvasEl.addEventListener('mousemove', this.draw.bind(this));
     canvasEl.addEventListener('mouseup', this.stopDrawing.bind(this));
     canvasEl.addEventListener('mouseleave', this.stopDrawing.bind(this));
   }
 
-  // --- MÉTODOS DE DIBUJO ---
   startDrawing(e: MouseEvent) {
     this.isDrawing = true;
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     this.cx.beginPath();
-    // Ajustamos la coordenada X e Y restando la posición del canvas
     this.cx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
   }
 
@@ -164,5 +167,4 @@ export class Register implements AfterViewInit {
     const canvas = this.canvasRef.nativeElement;
     this.cx.clearRect(0, 0, canvas.width, canvas.height);
   }
-
 }
