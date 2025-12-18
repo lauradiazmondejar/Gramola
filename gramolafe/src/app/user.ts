@@ -37,4 +37,12 @@ export class UserService {
     // Esperamos JSON con clientId y firma
     return this.http.post(this.apiUrl.replace('register', 'login'), info);
   }
+
+  requestReset(email: string) {
+    return this.http.post(this.apiUrl.replace('register', 'reset/request'), { email });
+  }
+
+  confirmReset(token: string, pwd1: string, pwd2: string) {
+    return this.http.post(this.apiUrl.replace('register', 'reset/confirm'), { token, pwd1, pwd2 });
+  }
 }

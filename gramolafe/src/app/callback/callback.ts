@@ -20,6 +20,8 @@ export class Callback implements OnInit {
 
   ngOnInit(): void {
     const code = this.route.snapshot.queryParams['code'];
+    const state = this.route.snapshot.queryParams['state'];
+    const savedState = sessionStorage.getItem('oauth_state');
     const error = this.route.snapshot.queryParams['error'];
     const clientId = sessionStorage.getItem('clientId') || '';
 
@@ -29,8 +31,14 @@ export class Callback implements OnInit {
       return;
     }
 
-    if (!code) {
-      console.error('No se recibio el parametro code en el callback');
+    if (!code || !state) {
+      console.error('No se recibio el parametro code/state en el callback');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (!savedState || savedState !== state) {
+      console.error('State devuelto por Spotify no coincide');
       this.router.navigate(['/login']);
       return;
     }
@@ -44,6 +52,7 @@ export class Callback implements OnInit {
     this.spotiService.getAuthorizationToken(code).subscribe({
       next: (data: any) => {
         sessionStorage.setItem('spoti_token', data.access_token);
+        sessionStorage.removeItem('oauth_state');
         this.router.navigate(['/music']);
       },
       error: (err) => {

@@ -18,6 +18,8 @@ export class Music implements OnInit {
 
   devices: any[] = [];
   playlists: any[] = [];
+  queue: any[] = [];
+  nowPlaying: any;
   tracks: any[] = [];
   currentDevice: any;
   searchTerm = '';
@@ -25,17 +27,18 @@ export class Music implements OnInit {
   successMsg = '';
   userSignature: string = '';
 
-  stripe = Stripe('pk_test_51SIV2CRfAGkgoJHtjzPD344TigvazTauIQXxhm98Tk78mAuc7H79dD9XWvSO8cIfKNG8DS5MvEw5ldw6LhfUuEsg00QDV18Afz'); // <--- ¡PON TU CLAVE PÚBLICA!
+  stripe = Stripe('pk_test_51SIV2CRfAGkgoJHtjzPD344TigvazTauIQXxhm98Tk78mAuc7H79dD9XWvSO8cIfKNG8DS5MvEw5ldw6LhfUuEsg00QDV18Afz');
   elements: any;
   card: any;
   clientSecret: string = '';
-  pagandoCancion: boolean = false; // Para mostrar/ocultar el modal de pago
-  cancionSeleccionada: any = null; // La canción que se quiere comprar
-  precio: number = 50; // Precio en céntimos (0.50€)
+  internalTransactionId: string = '';
+  pagandoCancion: boolean = false;
+  cancionSeleccionada: any = null;
+  songPriceCents?: number;
 
   constructor(
     private spotiService: SpotiService,
-    private http: HttpClient, // <--- Inyectamos HttpClient
+    private http: HttpClient,
     private paymentService: PaymentService
   ) {}
 
@@ -43,6 +46,13 @@ export class Music implements OnInit {
     this.userSignature = sessionStorage.getItem('signature') || '';
     this.cargarDispositivos();
     this.cargarPlaylists();
+    this.cargarCola();
+    this.cargarPrecioCancion();
+  }
+
+  logout() {
+    sessionStorage.clear();
+    window.location.href = '/login';
   }
 
   cargarDispositivos() {
@@ -65,6 +75,29 @@ export class Music implements OnInit {
       },
       error: (err) => {
         console.error('Error cargando playlists', err);
+      }
+    });
+  }
+
+  cargarCola() {
+    this.spotiService.getQueue().subscribe({
+      next: (data) => {
+        this.nowPlaying = data.currently_playing;
+        this.queue = data.queue || [];
+      },
+      error: (err) => {
+        console.error('No se pudo cargar la cola', err);
+      }
+    });
+  }
+
+  cargarPrecioCancion() {
+    this.paymentService.getPrice('song').subscribe({
+      next: (price: any) => {
+        this.songPriceCents = price.amount;
+      },
+      error: (err) => {
+        console.error('No se pudo obtener el precio de cancion', err);
       }
     });
   }
@@ -99,14 +132,15 @@ export class Music implements OnInit {
           next: () => {
             this.successMsg = `"${track.name}" anadida a la cola.`;
             setTimeout(() => this.successMsg = '', 3000);
+            this.cargarCola();
           },
           error: (err) => {
             console.error(err);
             const apiMsg = err?.error?.error?.message || err?.error?.message || '';
             if (err.status === 404) {
-              this.errorMsg = 'No hay dispositivo activo en Spotify. Dale al Play en algún dispositivo y reintenta.';
+              this.errorMsg = 'No hay dispositivo activo en Spotify. Dale al Play en algun dispositivo y reintenta.';
             } else if (err.status === 403) {
-              this.errorMsg = 'Spotify respondió 403 (Premium requerido o permiso denegado). Inicia sesión con la cuenta Premium y repite el login.';
+              this.errorMsg = 'Spotify respondio 403 (Premium requerido o permiso denegado). Inicia sesion con la cuenta Premium y repite el login.';
             } else {
               this.errorMsg = apiMsg || 'No se pudo anadir. Revisa Spotify y vuelve a intentar.';
             }
@@ -114,33 +148,30 @@ export class Music implements OnInit {
         });
       },
       (err) => {
-        console.error('Error validando ubicación en backend', err);
+        console.error('Error validando ubicacion en backend', err);
         if (err?.status === 403) {
-          this.errorMsg = 'Estás demasiado lejos del bar. La canción no se envía a Spotify.';
+          this.errorMsg = 'Estas demasiado lejos del bar. La cancion no se envia a Spotify.';
         } else if (err?.status === 400) {
-          this.errorMsg = 'Este bar requiere que compartas ubicación. Activa tu GPS.';
+          this.errorMsg = 'Este bar requiere que compartas ubicacion. Activa tu GPS.';
         } else {
-          this.errorMsg = 'No se pudo validar la ubicación. Inténtalo de nuevo.';
+          this.errorMsg = 'No se pudo validar la ubicacion. Intentalo de nuevo.';
         }
       }
     );
   }
 
-  // --- LÓGICA DE PAGO ---
-
-  // 1. El usuario hace clic en "Poner" -> Preparamos el cobro
   solicitarCancion(track: any) {
     this.cancionSeleccionada = track;
-    this.pagandoCancion = true; // Mostramos el modal
+    this.pagandoCancion = true;
     this.errorMsg = '';
 
-    // Pedimos al backend el "intento de pago" por el precio de la canción
-    this.paymentService.prepay(this.precio).subscribe({
+    const email = sessionStorage.getItem('email') || '';
+    const barName = sessionStorage.getItem('bar') || '';
+    this.paymentService.prepay('song', email, barName, 'song').subscribe({
       next: (response: any) => {
         const data = JSON.parse(response);
         this.clientSecret = data.client_secret;
-        
-        // Montamos el formulario de tarjeta (con un pequeño retardo para que el DIV exista)
+        this.internalTransactionId = data.id;
         setTimeout(() => this.montarFormularioStripe(), 100);
       },
       error: (err) => {
@@ -154,26 +185,41 @@ export class Music implements OnInit {
   montarFormularioStripe() {
     this.elements = this.stripe.elements();
     const style = {
-      base: { 
-        color: '#32325d', fontFamily: 'Arial, sans-serif', fontSmoothing: 'antialiased', fontSize: '16px', 
-        '::placeholder': { color: '#aab7c4' } 
+      base: {
+        color: '#32325d', fontFamily: 'Arial, sans-serif', fontSmoothing: 'antialiased', fontSize: '16px',
+        '::placeholder': { color: '#aab7c4' }
       }
     };
-    this.card = this.elements.create('card', {style: style});
-    this.card.mount('#card-element-song'); // Ojo al ID nuevo
+    this.card = this.elements.create('card', { style: style });
+    this.card.mount('#card-element-song');
   }
 
-  // 2. El usuario hace clic en "Pagar y Poner" -> Confirmamos con Stripe
   confirmarPago() {
+    if (!this.clientSecret) {
+      this.errorMsg = 'No hay intento de pago activo';
+      return;
+    }
+    // Evitamos doble submit
+    const payButton = document.querySelector('.btn-pay') as HTMLButtonElement | null;
+    if (payButton) payButton.disabled = true;
+
     this.stripe.confirmCardPayment(this.clientSecret, {
       payment_method: { card: this.card }
     }).then((result: any) => {
       if (result.error) {
         this.errorMsg = result.error.message;
+        if (payButton) payButton.disabled = false;
       } else {
         if (result.paymentIntent.status === 'succeeded') {
-          // 3. ¡Pago OK! -> Ejecutamos la lógica de añadir la canción
-          this.ejecutarPedido();
+          // Confirmamos en backend antes de añadir a Spotify
+          this.paymentService.confirm(result, this.internalTransactionId, null).subscribe({
+            next: () => this.ejecutarPedido(),
+            error: (err) => {
+              console.error(err);
+              this.errorMsg = 'Pago ok en Stripe, pero el servidor no lo validó.';
+              if (payButton) payButton.disabled = false;
+            }
+          });
         }
       }
     });
@@ -182,12 +228,10 @@ export class Music implements OnInit {
   cancelarPago() {
     this.pagandoCancion = false;
     this.cancionSeleccionada = null;
-    if(this.card) this.card.destroy(); // Limpiamos el formulario
+    if (this.card) this.card.destroy();
   }
 
-  // 4. Lógica final (lo que antes hacías directamente)
   ejecutarPedido() {
-    // Ocultamos el pago
     this.pagandoCancion = false;
     
     if (!this.currentDevice) {
@@ -202,22 +246,23 @@ export class Music implements OnInit {
       () => {
         this.spotiService.addToQueue(this.cancionSeleccionada.uri, this.currentDevice.id).subscribe({
           next: () => {
-            this.successMsg = `¡"${this.cancionSeleccionada.name}" pagada y en cola!`;
+            this.successMsg = `"${this.cancionSeleccionada.name}" pagada y en cola!`;
             this.cancionSeleccionada = null;
             setTimeout(() => this.successMsg = '', 4000);
+            this.cargarCola();
           },
-          error: (err) => {
-            this.errorMsg = 'Se cobró pero falló Spotify. Contacta con el camarero.';
+          error: () => {
+            this.errorMsg = 'Se cobro pero fallo Spotify. Contacta con el camarero.';
           }
         });
       },
       (err) => {
         if (err?.status === 403) {
-          this.errorMsg = 'Estás demasiado lejos del bar. No se añade a la cola.';
+          this.errorMsg = 'Estas demasiado lejos del bar. No se anade a la cola.';
         } else if (err?.status === 400) {
-          this.errorMsg = 'Este bar requiere que compartas ubicación.';
+          this.errorMsg = 'Este bar requiere que compartas ubicacion.';
         } else {
-          this.errorMsg = 'No se pudo validar la ubicación. Reintenta.';
+          this.errorMsg = 'No se pudo validar la ubicacion. Reintenta.';
         }
         this.cancionSeleccionada = null;
       }
@@ -227,9 +272,10 @@ export class Music implements OnInit {
   guardarEnHistorial(track: any, onOk?: () => void, onError?: (err: any) => void) {
     const clientId = sessionStorage.getItem('clientId');
     const email = sessionStorage.getItem('email');
+    const barName = sessionStorage.getItem('bar');
 
     if (!clientId || !email) {
-        this.errorMsg = 'Sesión inválida. Vuelve a iniciar sesión.';
+        this.errorMsg = 'Sesion invalida. Vuelve a iniciar sesion.';
         if (onError) { onError({ status: 400 }); }
         return;
     }
@@ -241,6 +287,7 @@ export class Music implements OnInit {
             uri: track.uri,
             clientId: clientId,
             email: email,
+            bar: barName,
             lat: lat,
             lon: lon
         };
@@ -267,8 +314,8 @@ export class Music implements OnInit {
             (pos) => {
                 enviarAlBackend(pos.coords.latitude, pos.coords.longitude);
             },
-            (err) => {
-                console.warn('No se pudo geolocalizar al cliente, enviando sin datos...', err);
+            () => {
+                console.warn('No se pudo geolocalizar al cliente, enviando sin datos...');
                 enviarAlBackend();
             }
         );

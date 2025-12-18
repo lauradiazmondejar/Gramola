@@ -10,14 +10,16 @@ export class PaymentService {
 
   constructor(private http: HttpClient) {}
 
-  // Paso 1: Pedir al backend que inicie el pago
-  prepay(amount: number): Observable<any> {
-    // 1000 = 10.00 EUR
-    return this.http.post(`${this.apiUrl}/prepay?amount=${amount}`, {}, { responseType: 'text' });
+  // Prepara un pago tomando el precio desde BD usando un cÇüdigo (song, subscription_monthly, etc.)
+  prepay(code: string, email?: string, bar?: string, type: string = 'subscription'): Observable<any> {
+    let url = `${this.apiUrl}/prepay?code=${code}&type=${type}`;
+    if (email) url += `&email=${encodeURIComponent(email)}`;
+    if (bar) url += `&bar=${encodeURIComponent(bar)}`;
+    return this.http.post(url, {}, { responseType: 'text' });
   }
 
   // Paso 2: Confirmar al backend que el pago se ha realizado
-  confirm(stripeResponse: any, internalId: string, token: string): Observable<any> {
+  confirm(stripeResponse: any, internalId: string, token: string | null): Observable<any> {
     // Enviamos los datos necesarios para que el backend active la cuenta
     let info = {
       stripeId: stripeResponse.paymentIntent.id,
@@ -25,5 +27,13 @@ export class PaymentService {
       token: token
     };
     return this.http.post(`${this.apiUrl}/confirm`, info, { responseType: 'text' });
+  }
+
+  getPrice(code: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/prices/${code}`);
+  }
+
+  listPrices(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/prices`);
   }
 }

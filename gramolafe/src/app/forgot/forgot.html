@@ -1,0 +1,9 @@
+<div class="card">
+  <h2>Recuperar contraseña</h2>
+  <p>Introduce tu email y te enviaremos un enlace.</p>
+  <input type="email" [(ngModel)]="email" placeholder="tu@correo.com">
+  <button (click)="solicitar()">Enviar enlace</button>
+
+  <p *ngIf="success" style="color: green;">{{ success }}</p>
+  <p *ngIf="error" style="color: red;">{{ error }}</p>
+</div>

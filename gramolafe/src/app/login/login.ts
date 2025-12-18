@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { UserService } from '../user';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
@@ -49,6 +50,9 @@ export class Login {
         sessionStorage.setItem("clientId", clientId);
         // Guardamos el email del bar logueado para validarlo en /music/add
         sessionStorage.setItem("email", this.email!);
+        if (resp?.bar) {
+          sessionStorage.setItem("bar", resp.bar);
+        }
         if (signature) {
           sessionStorage.setItem('signature', signature);
         }

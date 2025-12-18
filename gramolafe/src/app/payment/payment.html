@@ -1,9 +1,17 @@
 <div class="payment-container">
-    <h2>Suscripción Gramola</h2>
-    <p>Confirma tu cuenta realizando el pago de 10€.</p>
+    <h2>Suscripci\u00f3n Gramola</h2>
+    <p>Selecciona plan. Los importes vienen de BD.</p>
 
-    <div *ngIf="!clientSecret">
-        <button (click)="iniciarPago()">Pagar Suscripción</button>
+    <div class="plan-selector" *ngIf="!clientSecret">
+        <label>
+            <input type="radio" name="plan" value="subscription_monthly" [(ngModel)]="planCode">
+            Mensual ({{ prices['subscription_monthly'] || '?' }} cts)
+        </label>
+        <label>
+            <input type="radio" name="plan" value="subscription_annual" [(ngModel)]="planCode">
+            Anual ({{ prices['subscription_annual'] || '?' }} cts)
+        </label>
+        <button (click)="iniciarPago()" [disabled]="!token">Pagar suscripci\u00f3n</button>
     </div>
 
     <div id="payment-form" style="display: none; margin-top: 20px;">

@@ -20,12 +20,21 @@ public class MusicService {
     @Autowired
     private UserDao userDao;
 
+    @Autowired
+    private PaymentService paymentService;
+
     public void addSong(String title, String artist, String uri, String email, String clientId, Double userLat, Double userLon) {
         if (email == null || email.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta el email del bar logueado");
         }
         if (clientId == null || clientId.isBlank()) {
             throw new RuntimeException("ClientId vacío en la petición");
+        }
+        // Consumimos un pago de canción si hay
+        try {
+            paymentService.consumeSongPayment(email);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED, "Pago de canción no validado");
         }
 
         // Buscar al bar dueño de la sesión por email
@@ -45,10 +54,10 @@ public class MusicService {
 
             double distanciaMetros = calcularDistancia(bar.getLatitude(), bar.getLongitude(), userLat, userLon);
             
-            System.out.println("Distancia calculada: " + distanciaMetros + " metros.");
+            System.out.println("Distancia calculada: " + distanciaMetros + " metros. Bar=(" + bar.getLatitude() + "," + bar.getLongitude() + ") Cliente=(" + userLat + "," + userLon + ")");
 
-            // Límite: 100 metros
-            if (distanciaMetros > 100) {
+            // Límite ampliado para evitar falsos negativos por GPS impreciso
+            if (distanciaMetros > 500) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Estás demasiado lejos del bar (" + (int)distanciaMetros + "m). Acércate para pedir música.");
             }
         }

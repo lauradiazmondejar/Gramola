@@ -23,9 +23,15 @@ public class User {
     @JoinColumn(name = "creation_token_id", referencedColumnName = "id")
     private Token creationToken;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "reset_token_id", referencedColumnName = "id")
+    private Token resetToken;
+
     @jakarta.persistence.Lob
     @jakarta.persistence.Column(columnDefinition = "LONGTEXT")
     private String signature;
+
+    private boolean paid = false;
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
@@ -47,6 +53,14 @@ public class User {
         this.creationToken = token;
     }
 
+    public Token getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(Token resetToken) {
+        this.resetToken = resetToken;
+    }
+
     public Double getLatitude() { return latitude; }
     public void setLatitude(Double latitude) { this.latitude = latitude; }
 
@@ -55,4 +69,12 @@ public class User {
 
     public String getSignature() { return signature; }
     public void setSignature(String signature) { this.signature = signature; }
+
+    public boolean isPaid() {
+        return paid;
+    }
+
+    public void setPaid(boolean paid) {
+        this.paid = paid;
+    }
 }

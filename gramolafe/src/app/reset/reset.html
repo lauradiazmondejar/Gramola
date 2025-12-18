@@ -1,0 +1,11 @@
+<div class="card">
+  <h2>Restablecer contraseña</h2>
+  <p>Introduce tu nueva contraseña.</p>
+
+  <input type="password" [(ngModel)]="pwd1" placeholder="Nueva contraseña">
+  <input type="password" [(ngModel)]="pwd2" placeholder="Confirmar contraseña">
+  <button (click)="reset()">Cambiar</button>
+
+  <p *ngIf="success" style="color: green;">{{ success }}</p>
+  <p *ngIf="error" style="color: red;">{{ error }}</p>
+</div>

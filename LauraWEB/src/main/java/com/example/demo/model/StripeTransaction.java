@@ -11,11 +11,72 @@ public class StripeTransaction {
     
     @Column(length = 10000) // Usamos un campo largo para guardar todo el JSON de respuesta
     private String data; 
-    
+
+    private String priceCode;
+
+    /**
+     * Amount in cents as sent to Stripe. Persistimos para trazabilidad y para
+     * verificar que usamos el importe correcto desde BD.
+     */
+    private Long amount;
+
+    private String email;
+    private String bar;
+    private String type; // e.g. subscription, song
+    private boolean used = false;
+
+    public boolean isUsed() {
+        return used;
+    }
+
+    public void setUsed(boolean used) {
+        this.used = used;
+    }
+
     // Getters y Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     
     public String getData() { return data; }
     public void setData(String data) { this.data = data; }
+
+    public String getPriceCode() {
+        return priceCode;
+    }
+
+    public void setPriceCode(String priceCode) {
+        this.priceCode = priceCode;
+    }
+
+    public Long getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Long amount) {
+        this.amount = amount;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getBar() {
+        return bar;
+    }
+
+    public void setBar(String bar) {
+        this.bar = bar;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }

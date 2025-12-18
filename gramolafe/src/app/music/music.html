@@ -1,13 +1,14 @@
 <div class="header-bar">
     <h2>Panel de Control</h2>
-    <img [src]="userSignature" alt="Firma del Dueño" style="height: 50px; border: 1px solid #ccc;">
+    <img [src]="userSignature" alt="Firma del dueno" style="height: 50px; border: 1px solid #ccc;">
+    <button (click)="logout()">Cerrar sesión</button>
 </div>
 
 <div class="music-container">
   <h2>Gramola Virtual</h2>
 
   <div class="search-box card">
-    <h3>Buscar Cancion</h3>
+    <h3>Buscar cancion</h3>
     <div class="search-input">
       <input type="text" [(ngModel)]="searchTerm" placeholder="Titulo o artista..." (keyup.enter)="buscar()">
       <button (click)="buscar()">Buscar</button>
@@ -20,7 +21,9 @@
           <strong>{{ track.name }}</strong>
           <span>{{ track.artists[0].name }}</span>
         </div>
-        <button class="btn-add" (click)="solicitarCancion(track)">Poner</button>
+        <button class="btn-add" (click)="solicitarCancion(track)">
+          Poner ({{ songPriceCents != null ? (songPriceCents / 100) : '?' }} €)
+        </button>
       </div>
     </div>
   </div>
@@ -39,13 +42,13 @@
     <ul>
       <li *ngFor="let device of devices" [class.active]="device.is_active">
         <strong>{{ device.name }}</strong> ({{ device.type }})
-        <span *ngIf="device.is_active">· SONANDO AHORA</span>
+        <span *ngIf="device.is_active"> Sonando ahora</span>
       </li>
     </ul>
   </div>
 
   <div class="card">
-    <h3>Playlists del Local</h3>
+    <h3>Playlists del local</h3>
     <div class="playlist-grid">
       <div class="playlist-item" *ngFor="let list of playlists">
         <img *ngIf="list.images.length > 0" [src]="list.images[0].url" width="100" alt="playlist cover">
@@ -53,16 +56,26 @@
       </div>
     </div>
   </div>
-</div>
-<div class="track-item" *ngFor="let track of tracks">
-    <button class="btn-add" (click)="solicitarCancion(track)">🎵 0.50€</button>
+
+  <div class="card">
+    <h3>Cola actual</h3>
+    <button (click)="cargarCola()">Recargar cola</button>
+    <div *ngIf="nowPlaying">
+      <p>Reproduciendo: <strong>{{ nowPlaying?.name }}</strong> - {{ nowPlaying?.artists?.[0]?.name }}</p>
+    </div>
+    <ul>
+      <li *ngFor="let item of queue">
+        {{ item.name }} - {{ item.artists?.[0]?.name }}
+      </li>
+    </ul>
+  </div>
 </div>
 
 <div class="modal-overlay" *ngIf="pagandoCancion">
     <div class="modal-content">
-        <h3>Confirmar Pedido</h3>
+        <h3>Confirmar pedido</h3>
         <p>Vas a poner: <strong>{{ cancionSeleccionada?.name }}</strong></p>
-        <p>Precio: <strong>0.50€</strong></p>
+        <p>Precio: <strong>{{ songPriceCents != null ? (songPriceCents / 100) : '?' }} €</strong></p>
         
         <div class="stripe-box">
             <div id="card-element-song"></div>
@@ -70,7 +83,7 @@
 
         <div class="modal-actions">
             <button class="btn-cancel" (click)="cancelarPago()">Cancelar</button>
-            <button class="btn-pay" (click)="confirmarPago()">💸 Pagar y Sonar</button>
+            <button class="btn-pay" (click)="confirmarPago()">Pagar y sonar</button>
         </div>
     </div>
 </div>

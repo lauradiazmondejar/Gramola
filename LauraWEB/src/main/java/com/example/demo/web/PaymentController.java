@@ -3,6 +3,8 @@ package com.example.demo.web;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,12 +25,11 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @PostMapping("/prepay")
-    public String prepay(@RequestParam long amount) {
+    public String prepay(@RequestParam String code, @RequestParam(required = false) String email,
+            @RequestParam(required = false) String bar, @RequestParam(defaultValue = "subscription") String type) {
         try {
-            // Llamamos al servicio para iniciar el pago
-            return paymentService.prepay(amount);
+            return paymentService.prepay(code, email, bar, type);
         } catch (Exception e) {
-            // Si Stripe falla (clave mal, error de conexion), devolvemos error
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -38,12 +39,26 @@ public class PaymentController {
         try {
             String stripeId = (String) body.get("stripeId");
             String internalId = (String) body.get("internalId");
-            String token = (String) body.get("token");
+            String token = (String) body.get("token"); // puede ser null para pagos de cancion
 
             paymentService.confirm(stripeId, internalId, token);
             return "OK";
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    @GetMapping("/prices")
+    public java.util.List<com.example.demo.model.Price> listPrices() {
+        return paymentService.listPrices();
+    }
+
+    @GetMapping("/prices/{code}")
+    public com.example.demo.model.Price getPrice(@PathVariable String code) {
+        try {
+            return paymentService.getPrice(code);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 }

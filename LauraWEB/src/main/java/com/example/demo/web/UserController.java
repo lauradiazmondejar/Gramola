@@ -83,6 +83,7 @@ public class UserController {
         // Construimos la respuesta JSON
         Map<String, String> response = new java.util.HashMap<>();
         response.put("clientId", user.getClientId());
+        response.put("bar", user.getBar());
         
         // Aquí enviamos la firma (si existe)
         if (user.getSignature() != null) {
@@ -92,5 +93,25 @@ public class UserController {
         }
 
         return response;
+    }
+
+    @PostMapping("/reset/request")
+    public void resetRequest(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        if (email == null || email.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta email");
+        }
+        this.service.requestPasswordReset(email);
+    }
+
+    @PostMapping("/reset/confirm")
+    public void resetConfirm(@RequestBody Map<String, String> body) {
+        String token = body.get("token");
+        String pwd1 = body.get("pwd1");
+        String pwd2 = body.get("pwd2");
+        if (token == null || pwd1 == null || pwd2 == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Faltan datos");
+        }
+        this.service.resetPassword(token, pwd1, pwd2);
     }
 }
