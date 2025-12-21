@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import java.util.Locale;
 
 @Service
 public class EmailService {
@@ -74,6 +75,38 @@ public class EmailService {
             log.info("Correo de reset enviado a {}", to);
         } catch (Exception e) {
             log.error("No se pudo enviar el correo de reset a {}: {}", to, e.getMessage());
+            throw e;
+        }
+    }
+
+    public void sendSubscriptionReceipt(String to, String bar, String planCode, Long amountCents) {
+        String planName = switch (planCode) {
+            case "subscription_monthly" -> "Suscripcion mensual";
+            case "subscription_annual" -> "Suscripcion anual";
+            default -> planCode;
+        };
+        double amountEuros = amountCents != null ? amountCents / 100.0 : 0.0;
+
+        String body = """
+                Hola %s,
+
+                Hemos recibido el pago de tu suscripcion (%s).
+                Importe pagado: %.2f euros.
+
+                Gracias por usar la gramola.
+                """.formatted(bar == null ? "" : bar, planName, amountEuros);
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setFrom(from.isBlank() ? "no-reply@gramola.local" : from);
+        message.setSubject("Pago confirmado de la suscripcion");
+        message.setText(body);
+
+        try {
+            mailSender.send(message);
+            log.info("Correo de confirmacion de pago enviado a {}", to);
+        } catch (Exception e) {
+            log.error("No se pudo enviar el correo de pago a {}: {}", to, e.getMessage());
             throw e;
         }
     }

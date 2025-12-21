@@ -16,6 +16,7 @@ export class Login {
   email?: string;
   pwd?: string;
   errorMsg?: string;
+  showPwd = false;
 
   // Datos para la conexion con Spotify (Paso 1 del OAuth). Ajusta redirectUrl igual que en el Dashboard de Spotify.
   spoti = {

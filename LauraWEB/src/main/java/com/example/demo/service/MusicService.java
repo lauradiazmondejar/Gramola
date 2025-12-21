@@ -10,9 +10,15 @@ import com.example.demo.model.User;
 
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.List;
 
 @Service
 public class MusicService {
+
+    private static final Logger log = LoggerFactory.getLogger(MusicService.class);
+    private static final double MAX_DISTANCE_METERS = 100.0; // Límite de 100m según enunciado
 
     @Autowired
     private SongDao songDao;
@@ -28,7 +34,7 @@ public class MusicService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta el email del bar logueado");
         }
         if (clientId == null || clientId.isBlank()) {
-            throw new RuntimeException("ClientId vacío en la petición");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ClientId vacío en la petición");
         }
         // Consumimos un pago de canción si hay
         try {
@@ -54,10 +60,10 @@ public class MusicService {
 
             double distanciaMetros = calcularDistancia(bar.getLatitude(), bar.getLongitude(), userLat, userLon);
             
-            System.out.println("Distancia calculada: " + distanciaMetros + " metros. Bar=(" + bar.getLatitude() + "," + bar.getLongitude() + ") Cliente=(" + userLat + "," + userLon + ")");
+            log.info("Distancia calculada: {} metros. Bar=({}, {}) Cliente=({}, {})", distanciaMetros, bar.getLatitude(), bar.getLongitude(), userLat, userLon);
 
-            // Límite ampliado para evitar falsos negativos por GPS impreciso
-            if (distanciaMetros > 500) {
+            // Límite según enunciado. Ajustar si se necesita margen extra.
+            if (distanciaMetros > MAX_DISTANCE_METERS) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Estás demasiado lejos del bar (" + (int)distanciaMetros + "m). Acércate para pedir música.");
             }
         }
@@ -69,7 +75,16 @@ public class MusicService {
         song.setBar(bar);
 
         songDao.save(song);
-        System.out.println("Canción guardada: " + title + " para el bar: " + bar.getBar());
+        log.info("Canción guardada: {} para el bar: {}", title, bar.getBar());
+    }
+
+    public List<Song> listSongsForBar(String email) {
+        if (email == null || email.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta el email del bar");
+        }
+        userDao.findById(email)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bar no encontrado"));
+        return songDao.findByBar_EmailOrderByDateAsc(email);
     }
 
     private double calcularDistancia(double lat1, double lon1, double lat2, double lon2) {

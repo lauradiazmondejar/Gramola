@@ -38,4 +38,9 @@ public class MusicController {
     public String health() {
         return "ok";
     }
+
+    @GetMapping("/queue")
+    public java.util.List<com.example.demo.model.Song> listQueue(@RequestParam String email) {
+        return musicService.listSongsForBar(email);
+    }
 }

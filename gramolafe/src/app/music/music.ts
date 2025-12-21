@@ -26,6 +26,11 @@ export class Music implements OnInit {
   errorMsg = '';
   successMsg = '';
   userSignature: string = '';
+  currentPlaylistName?: string;
+  currentPlaylistTracks: any[] = [];
+  isPlaying = false;
+  simulatePlayback = true; // fallback sin Premium
+  backendBase = 'http://127.0.0.1:8080';
 
   stripe = Stripe('pk_test_51SIV2CRfAGkgoJHtjzPD344TigvazTauIQXxhm98Tk78mAuc7H79dD9XWvSO8cIfKNG8DS5MvEw5ldw6LhfUuEsg00QDV18Afz');
   elements: any;
@@ -47,6 +52,7 @@ export class Music implements OnInit {
     this.cargarDispositivos();
     this.cargarPlaylists();
     this.cargarCola();
+    this.cargarPlaybackActual();
     this.cargarPrecioCancion();
   }
 
@@ -87,6 +93,88 @@ export class Music implements OnInit {
       },
       error: (err) => {
         console.error('No se pudo cargar la cola', err);
+        if (this.simulatePlayback) {
+          this.cargarColaLocal();
+        }
+      }
+    });
+  }
+
+  cargarPlaybackActual() {
+    this.spotiService.getCurrentPlayback().subscribe({
+      next: (data) => {
+        this.isPlaying = !!data?.is_playing;
+        if (data?.item) {
+          this.nowPlaying = data.item;
+        }
+        const ctx = data?.context;
+        if (ctx?.type === 'playlist' && ctx.uri) {
+          const playlistId = this.extraerPlaylistId(ctx.uri);
+          if (playlistId) {
+            this.cargarPlaylistActual(playlistId);
+          }
+        }
+      },
+      error: (err) => {
+        console.error('No se pudo obtener el estado de reproduccion', err);
+      }
+    });
+  }
+
+  private extraerPlaylistId(uri: string): string | undefined {
+    const parts = uri.split(':');
+    return parts.length === 3 ? parts[2] : undefined;
+  }
+
+  cargarPlaylistActual(playlistId: string) {
+    this.spotiService.getPlaylist(playlistId).subscribe({
+      next: (playlist) => {
+        this.currentPlaylistName = playlist?.name;
+        this.currentPlaylistTracks = (playlist?.tracks?.items || []).map((it: any) => it.track);
+      },
+      error: (err) => {
+        console.error('No se pudo cargar la playlist actual', err);
+      }
+    });
+  }
+
+  reproducirPlaylist(list: any) {
+    if (!this.currentDevice) {
+      this.errorMsg = 'No hay ningun dispositivo activo.';
+      return;
+    }
+    this.errorMsg = '';
+    this.spotiService.startPlaylist(list.uri, this.currentDevice.id).subscribe({
+      next: () => {
+        this.currentPlaylistName = list.name;
+        this.currentPlaylistTracks = [];
+        this.isPlaying = true;
+        setTimeout(() => {
+          this.cargarPlaybackActual();
+          this.cargarCola();
+        }, 400);
+      },
+      error: (err) => {
+        console.error(err);
+        this.errorMsg = 'Spotify no permitio iniciar la playlist (verifica cuenta Premium y permisos).';
+      }
+    });
+  }
+
+  reanudarReproduccion() {
+    if (!this.currentDevice) {
+      this.errorMsg = 'No hay dispositivo para reproducir.';
+      return;
+    }
+    this.spotiService.resumePlayback(this.currentDevice.id).subscribe({
+      next: () => {
+        this.isPlaying = true;
+        this.errorMsg = '';
+        this.cargarPlaybackActual();
+      },
+      error: (err) => {
+        console.error(err);
+        this.errorMsg = 'No se pudo reanudar la reproduccion en Spotify.';
       }
     });
   }
@@ -139,8 +227,14 @@ export class Music implements OnInit {
             const apiMsg = err?.error?.error?.message || err?.error?.message || '';
             if (err.status === 404) {
               this.errorMsg = 'No hay dispositivo activo en Spotify. Dale al Play en algun dispositivo y reintenta.';
+              if (this.simulatePlayback) {
+                this.simularColaLocal(track);
+              }
             } else if (err.status === 403) {
               this.errorMsg = 'Spotify respondio 403 (Premium requerido o permiso denegado). Inicia sesion con la cuenta Premium y repite el login.';
+              if (this.simulatePlayback) {
+                this.simularColaLocal(track);
+              }
             } else {
               this.errorMsg = apiMsg || 'No se pudo anadir. Revisa Spotify y vuelve a intentar.';
             }
@@ -244,20 +338,23 @@ export class Music implements OnInit {
     this.guardarEnHistorial(
       this.cancionSeleccionada,
       () => {
-        this.spotiService.addToQueue(this.cancionSeleccionada.uri, this.currentDevice.id).subscribe({
-          next: () => {
-            this.successMsg = `"${this.cancionSeleccionada.name}" pagada y en cola!`;
-            this.cancionSeleccionada = null;
-            setTimeout(() => this.successMsg = '', 4000);
-            this.cargarCola();
+            this.spotiService.addToQueue(this.cancionSeleccionada.uri, this.currentDevice.id).subscribe({
+              next: () => {
+                this.successMsg = `"${this.cancionSeleccionada.name}" pagada y en cola!`;
+                this.cancionSeleccionada = null;
+                setTimeout(() => this.successMsg = '', 4000);
+                this.cargarCola();
+              },
+              error: (err) => {
+                this.errorMsg = 'Se cobro pero fallo Spotify. Contacta con el camarero.';
+                if (this.simulatePlayback && this.cancionSeleccionada) {
+                  this.simularColaLocal(this.cancionSeleccionada);
+                }
+              }
+            });
           },
-          error: () => {
-            this.errorMsg = 'Se cobro pero fallo Spotify. Contacta con el camarero.';
-          }
-        });
-      },
-      (err) => {
-        if (err?.status === 403) {
+          (err) => {
+            if (err?.status === 403) {
           this.errorMsg = 'Estas demasiado lejos del bar. No se anade a la cola.';
         } else if (err?.status === 400) {
           this.errorMsg = 'Este bar requiere que compartas ubicacion.';
@@ -322,5 +419,32 @@ export class Music implements OnInit {
     } else {
         enviarAlBackend();
     }
+  }
+
+  private cargarColaLocal() {
+    const email = sessionStorage.getItem('email');
+    if (!email) { return; }
+    this.http.get(`${this.backendBase}/music/queue?email=${encodeURIComponent(email)}`).subscribe({
+      next: (songs: any) => {
+        // Normalizamos al formato usado en la vista (name + artists[0].name)
+        const mapped = (songs as any[]).map((s: any) => ({
+          name: s.title,
+          artists: [{ name: s.artist }],
+          uri: s.uri
+        }));
+        this.queue = mapped;
+        this.nowPlaying = mapped[0] || null;
+        this.successMsg = this.successMsg || 'Reproduccion simulada en cola local.';
+      },
+      error: (err) => {
+        console.error('No se pudo cargar la cola local', err);
+      }
+    });
+  }
+
+  private simularColaLocal(track: any) {
+    this.cargarColaLocal();
+    this.successMsg = `"${track.name}" añadida en modo simulado (sin Premium).`;
+    setTimeout(() => this.successMsg = '', 4000);
   }
 }

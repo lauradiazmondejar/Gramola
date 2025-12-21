@@ -63,8 +63,30 @@
       <div class="playlist-item" *ngFor="let list of playlists">
         <img *ngIf="list.images.length > 0" [src]="list.images[0].url" alt="playlist cover">
         <p>{{ list.name }}</p>
+        <button class="btn btn-secondary" (click)="reproducirPlaylist(list)">Reproducir en {{ currentDevice?.name || 'dispositivo activo' }}</button>
       </div>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <h3>Playlist en reproducciÛn</h3>
+      <div>
+        <button class="btn btn-ghost" (click)="cargarPlaybackActual()">Refrescar</button>
+        <button class="btn btn-ghost" *ngIf="!isPlaying && currentDevice" (click)="reanudarReproduccion()">Reanudar en {{ currentDevice?.name }}</button>
+      </div>
+    </div>
+    <ng-container *ngIf="currentPlaylistName; else noPlaylist">
+      <p class="muted">Sonando: <strong>{{ currentPlaylistName }}</strong></p>
+      <ul class="queue-list">
+        <li class="queue-item" *ngFor="let track of currentPlaylistTracks">
+          {{ track?.name }} - {{ track?.artists?.[0]?.name }}
+        </li>
+      </ul>
+    </ng-container>
+    <ng-template #noPlaylist>
+      <p class="muted">Aun no hay playlist activa. Elige una para reproducir.</p>
+    </ng-template>
   </div>
 
   <div class="card">

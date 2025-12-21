@@ -22,6 +22,9 @@ export class Register implements AfterViewInit {
   ubicacionMsg = '';
   address = '';
   errorMsg?: string;
+  showPwd1 = false;
+  showPwd2 = false;
+  showClientSecret = false;
 
   registroOK = false;
   registroKO = false;

@@ -22,10 +22,13 @@ public class SpotiService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private SecretEncryptionService encryptionService;
+
     public SpotiToken getAuthorizationToken(String code, String clientId) {
         // 1. Recuperamos el secreto del bar de la BD
         User user = userService.getUserByClientId(clientId);
-        String clientSecret = user.getClientSecret();
+        String clientSecret = encryptionService.decrypt(user.getClientSecret());
 
         // 2. Preparamos la petición a Spotify
         HttpHeaders headers = new HttpHeaders();

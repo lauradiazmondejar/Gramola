@@ -16,6 +16,8 @@ export class Reset implements OnInit {
   pwd2 = '';
   success?: string;
   error?: string;
+  showPwd1 = false;
+  showPwd2 = false;
 
   constructor(private route: ActivatedRoute, private router: Router, private userService: UserService) {}
 

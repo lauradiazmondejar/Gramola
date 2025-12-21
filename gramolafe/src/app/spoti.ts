@@ -26,6 +26,16 @@ export class SpotiService {
     return this.http.get(`${this.spotifyApiUrl}/me/playlists`, { headers });
   }
 
+  getPlaylist(id: string): Observable<any> {
+    const headers = this.getHeaders();
+    return this.http.get(`${this.spotifyApiUrl}/playlists/${id}`, { headers });
+  }
+
+  getCurrentPlayback(): Observable<any> {
+    const headers = this.getHeaders();
+    return this.http.get(`${this.spotifyApiUrl}/me/player`, { headers });
+  }
+
   search(q: string): Observable<any> {
     const headers = this.getHeaders();
     return this.http.get(`${this.spotifyApiUrl}/search?q=${q}&type=track`, { headers });
@@ -43,6 +53,18 @@ export class SpotiService {
   getQueue(): Observable<any> {
     const headers = this.getHeaders();
     return this.http.get(`${this.spotifyApiUrl}/me/player/queue`, { headers });
+  }
+
+  startPlaylist(playlistUri: string, deviceId: string): Observable<any> {
+    const headers = this.getHeaders();
+    const url = `${this.spotifyApiUrl}/me/player/play?device_id=${deviceId}`;
+    return this.http.put(url, { context_uri: playlistUri }, { headers });
+  }
+
+  resumePlayback(deviceId: string): Observable<any> {
+    const headers = this.getHeaders();
+    const url = `${this.spotifyApiUrl}/me/player/play?device_id=${deviceId}`;
+    return this.http.put(url, {}, { headers });
   }
 
   private getHeaders(): HttpHeaders {

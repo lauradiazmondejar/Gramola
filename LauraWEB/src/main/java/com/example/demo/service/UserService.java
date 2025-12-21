@@ -25,6 +25,9 @@ public class UserService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private SecretEncryptionService encryptionService;
+
     public String register(String bar, String email, String pwd, String clientId, String clientSecret, Double lat, Double lon, String signature) {
         Optional<User> optUser = userDao.findById(email);
 
@@ -50,7 +53,7 @@ public class UserService {
 
         user.setBar(bar);
         user.setClientId(clientId);
-        user.setClientSecret(clientSecret);
+        user.setClientSecret(encryptionService.encrypt(clientSecret));
         user.setCreationToken(new Token());
         user.setLatitude(lat);
         user.setLongitude(lon);

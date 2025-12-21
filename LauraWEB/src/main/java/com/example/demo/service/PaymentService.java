@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import jakarta.annotation.PostConstruct;
 
 import com.example.demo.dao.StripeTransactionDao;
@@ -17,14 +18,16 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams.AutomaticPaymentMethods;
 import com.stripe.param.PaymentIntentCreateParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class PaymentService {
 
-    // Clave secreta de prueba. Sustituye por la tuya (sk_test_...) si usas otra cuenta.
-    static {
-        Stripe.apiKey = "sk_test_51SIV2CRfAGkgoJHtxiS8AsEUX3c4f6zANAokuFi9kRECp1EUt2LAVig0AWgR5fshnIZefP5KTSZkpWY0vIZlPDaK003osgReMe";
-    }
+    private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
+
+    @Value("${stripe.secret-key:}")
+    private String stripeSecretKey;
 
     @Autowired
     private StripeTransactionDao stripeDao;
@@ -38,24 +41,16 @@ public class PaymentService {
     @Autowired
     private PriceDao priceDao;
 
-    @PostConstruct
-    public void ensureDefaultPrices() {
-        // Cargamos precios por defecto si no existen
-        createIfMissing("subscription_monthly", "Suscripcion mensual", 1000L);
-        createIfMissing("subscription_annual", "Suscripcion anual", 10000L);
-        createIfMissing("song", "Precio por cancion", 50L);
-    }
+    @Autowired
+    private EmailService emailService;
 
-    private void createIfMissing(String code, String description, long amount) {
-        priceDao.findById(code).ifPresentOrElse(
-                p -> {},
-                () -> {
-                    Price price = new Price();
-                    price.setCode(code);
-                    price.setDescription(description);
-                    price.setAmount(amount);
-                    priceDao.save(price);
-                });
+    @PostConstruct
+    public void initStripe() {
+        if (stripeSecretKey == null || stripeSecretKey.isBlank()) {
+            log.warn("Stripe secret key is not configured (stripe.secret-key). Payments will fail.");
+        } else {
+            Stripe.apiKey = stripeSecretKey;
+        }
     }
 
     public Price getPrice(String code) {
@@ -147,6 +142,12 @@ public class PaymentService {
 
             user.setPaid(true);
             userDao.save(user);
+            try {
+                emailService.sendSubscriptionReceipt(user.getEmail(), user.getBar(), transaction.getPriceCode(), transaction.getAmount());
+            } catch (Exception e) {
+                // El pago se confirma aunque el correo falle, pero dejamos logueado el error.
+                log.error("No se pudo enviar el correo de confirmacion: {}", e.getMessage());
+            }
         } else if ("song".equals(transaction.getPriceCode())) {
             // Pago de cancion: ya validado en Stripe, no necesita token.
         }
