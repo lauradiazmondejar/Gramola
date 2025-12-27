@@ -3,6 +3,7 @@ package com.example.demo.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SpotiToken {
+    // Campos devueltos por Spotify al intercambiar el codigo por token
     @JsonProperty("access_token")
     private String accessToken;
 

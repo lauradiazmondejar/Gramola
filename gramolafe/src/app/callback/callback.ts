@@ -19,6 +19,7 @@ export class Callback implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Valida parametros devueltos por Spotify antes de pedir el token
     const code = this.route.snapshot.queryParams['code'];
     const state = this.route.snapshot.queryParams['state'];
     const savedState = sessionStorage.getItem('oauth_state');
@@ -49,6 +50,7 @@ export class Callback implements OnInit {
       return;
     }
 
+    // Intercambiamos el code por el token de acceso y guardamos en sesion
     this.spotiService.getAuthorizationToken(code).subscribe({
       next: (data: any) => {
         sessionStorage.setItem('spoti_token', data.access_token);
@@ -62,3 +64,4 @@ export class Callback implements OnInit {
     });
   }
 }
+

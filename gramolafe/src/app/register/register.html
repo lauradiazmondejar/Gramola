@@ -10,6 +10,7 @@
     </div>
 
     <div class="register-layout">
+      <!-- Columna izquierda con datos de acceso y Spotify -->
       <div class="card soft left-card">
         <div class="section-title">
           <h3>Datos del bar</h3>
@@ -99,6 +100,7 @@
       </div>
 
       <div class="right-col">
+        <!-- Columna derecha con ubicacion y firma -->
         <div class="card soft location-card">
           <div class="section-title">
             <h3>Ubicación del bar</h3>
@@ -132,8 +134,7 @@
       <p class="muted">Al registrar aceptas recibir el correo de confirmación.</p>
       <button class="btn" (click)="registrar()">Registrar bar</button>
     </div>
-
-    <div *ngIf="errorMsg" class="feedback error">{{ errorMsg }}</div>
+\n    <!-- Mensajes de exito o error -->\n    <div *ngIf="errorMsg" class="feedback error">{{ errorMsg }}</div>
     <div *ngIf="registroOK" class="feedback success">
       Registro exitoso. Revisa tu correo para confirmar y pagar.
     </div>
@@ -142,3 +143,6 @@
     </div>
   </div>
 </div>
+
+
+

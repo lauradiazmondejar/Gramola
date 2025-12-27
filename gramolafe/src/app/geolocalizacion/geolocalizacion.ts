@@ -16,6 +16,7 @@ export class Geolocalizacion {
   ciudad?: string;
 
   constructor() {
+    // Al iniciar el componente, pedimos geolocalizacion y lanzamos las peticiones auxiliares
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -42,6 +43,7 @@ export class Geolocalizacion {
   }
 
   private obtenerCiudad() {
+    // Invoca Nominatim para traducir lat/lon a ciudad
     if (this.coordenadas) {
       const lat = this.coordenadas.coords.latitude;
       const lon = this.coordenadas.coords.longitude;
@@ -61,6 +63,7 @@ export class Geolocalizacion {
   }
 
   private obtenerClima() {
+    // Consulta el servicio de clima usando las coordenadas actuales
     if (this.coordenadas) {
       // CORREGIDO: Definimos lat y lon antes de usarlas
       const lat = this.coordenadas.coords.latitude;
@@ -84,3 +87,5 @@ export class Geolocalizacion {
     }
   }
 }
+
+

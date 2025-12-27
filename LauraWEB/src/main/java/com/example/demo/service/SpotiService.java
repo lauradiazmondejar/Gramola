@@ -53,6 +53,7 @@ public class SpotiService {
     }
 
     private String basicAuth(String clientId, String clientSecret) {
+        // Construye el header Basic Auth requerido por Spotify
         String auth = clientId + ":" + clientSecret;
         return "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
     }

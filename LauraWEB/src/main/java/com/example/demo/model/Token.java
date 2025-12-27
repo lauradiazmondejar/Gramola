@@ -8,9 +8,12 @@ import jakarta.persistence.Column;
 
 @Entity
 public class Token {
+    // Identificador unico usado en confirmaciones y reseteos
     @Id @Column(length = 36)
     private String id;
+    // Instante de creacion del token
     private long creationtime;
+    // Instante en que se marco como usado (0 si sigue activo)
     private long usetime= 0;
     @OneToOne(mappedBy = "creationToken")
     private User user;

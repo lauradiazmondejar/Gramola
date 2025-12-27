@@ -8,5 +8,6 @@ import { RouterOutlet } from '@angular/router';
   // estilos globales en src/styles.css
 })
 export class App {
+  // Signal usado para exponer el titulo de la aplicacion
   protected readonly title = signal('gramolafe');
 }

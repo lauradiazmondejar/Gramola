@@ -32,6 +32,7 @@ export class Payment implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Lee token de activacion y precarga los precios desde el backend
     this.token = this.route.snapshot.queryParams['token'];
     this.cargarPrecios();
     if (!this.token) {
@@ -40,6 +41,7 @@ export class Payment implements OnInit {
   }
 
   private cargarPrecios() {
+    // Obtiene los precios disponibles para mostrarlos en la UI
     this.paymentService.listPrices().subscribe({
       next: (list: any[]) => {
         list.forEach(p => this.prices[p.code] = p.amount);
@@ -55,6 +57,7 @@ export class Payment implements OnInit {
   }
 
   iniciarPago() {
+    // Solicita al backend el PaymentIntent y prepara el formulario de Stripe
     this.paymentStatus = 'Conectando con el servidor...';
 
     this.paymentService.prepay(this.planCode).subscribe({
@@ -73,6 +76,7 @@ export class Payment implements OnInit {
   }
 
   mostrarFormularioStripe() {
+    // Crea el elemento de tarjeta y lo monta en el DOM
     this.elements = this.stripe.elements();
 
     const style = {
@@ -95,6 +99,7 @@ export class Payment implements OnInit {
   }
 
   pagar() {
+    // Llama a Stripe para confirmar la tarjeta introducida
     this.paymentStatus = 'Procesando pago...';
 
     this.stripe.confirmCardPayment(this.clientSecret, {
@@ -111,6 +116,7 @@ export class Payment implements OnInit {
   }
 
   confirmarEnBackend(stripeResult: any) {
+    // Notifica al servidor el resultado y redirige tras exito
     this.paymentService.confirm(stripeResult, this.internalTransactionId, this.token)
       .subscribe({
         next: () => {
@@ -124,3 +130,9 @@ export class Payment implements OnInit {
       });
   }
 }
+
+
+
+
+
+

@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
+/* Paleta y estilos base compartidos por toda la app */
+
 :root {
   --bg: #f7f8fb;
   --panel: #ffffff;

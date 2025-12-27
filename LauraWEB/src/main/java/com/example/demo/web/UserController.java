@@ -59,11 +59,13 @@ public class UserController {
 
     @DeleteMapping("/delete")
     public void delete(@RequestParam String email) {
+        // Borra al usuario y sus datos asociados
         this.service.delete(email);
     }
 
     @GetMapping("/confirmToken/{email}") 
     public void confirmToken(@PathVariable String email, @RequestParam String token, HttpServletResponse response) throws IOException {
+        // Valida el token y redirige al flujo de pago en el front
         this.service.confirmToken(email, token);
         response.sendRedirect("http://127.0.0.1:4200/payment?token=" + token);
     }
@@ -101,6 +103,7 @@ public class UserController {
         if (email == null || email.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta email");
         }
+        // Genera token de reseteo y envia correo
         this.service.requestPasswordReset(email);
     }
 
@@ -112,6 +115,7 @@ public class UserController {
         if (token == null || pwd1 == null || pwd2 == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Faltan datos");
         }
+        // Cambia la contrasena si el token es valido
         this.service.resetPassword(token, pwd1, pwd2);
     }
 }

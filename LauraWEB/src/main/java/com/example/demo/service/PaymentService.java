@@ -46,6 +46,7 @@ public class PaymentService {
 
     @PostConstruct
     public void initStripe() {
+        // Configura la API de Stripe con la clave cargada desde propiedades
         if (stripeSecretKey == null || stripeSecretKey.isBlank()) {
             log.warn("Stripe secret key is not configured (stripe.secret-key). Payments will fail.");
         } else {
@@ -54,6 +55,7 @@ public class PaymentService {
     }
 
     public Price getPrice(String code) {
+        // Busca el precio solicitado o lanza error si no existe
         return priceDao.findById(code)
                 .orElseThrow(() -> new IllegalArgumentException("Price code not found: " + code));
     }
@@ -63,10 +65,12 @@ public class PaymentService {
     }
 
     public boolean hasValidSongPayment(String email) {
+        // Comprueba si queda un pago de cancion pendiente de usar
         return stripeDao.findFirstByEmailAndPriceCodeAndUsedFalse(email, "song").isPresent();
     }
 
     public StripeTransaction consumeSongPayment(String email) {
+        // Busca un pago de cancion sin usar y lo marca como consumido
         StripeTransaction tx = stripeDao.findFirstByEmailAndPriceCodeAndUsedFalse(email, "song")
                 .orElseThrow(() -> new IllegalArgumentException("No hay pago de canción disponible para " + email));
         tx.setUsed(true);
@@ -75,6 +79,7 @@ public class PaymentService {
     }
 
     public String prepay(String priceCode, String email, String bar, String type) throws StripeException {
+        // Obtiene el precio elegido por el usuario
         Price price = getPrice(priceCode);
 
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
@@ -87,6 +92,7 @@ public class PaymentService {
 
         PaymentIntent intent = PaymentIntent.create(params);
 
+        // Persistimos la transaccion para compararla cuando Stripe confirme
         StripeTransaction transaction = new StripeTransaction();
         transaction.setId(intent.getId());
         transaction.setData(intent.toJson());
@@ -153,3 +159,4 @@ public class PaymentService {
         }
     }
 }
+

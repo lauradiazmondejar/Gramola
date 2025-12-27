@@ -11,9 +11,11 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "bars")
 public class User {
+    // Email del bar usado como identificador
     @Id
     private String email;
     private String password;
+    // Nombre comercial del bar
     private String bar;
     private String clientId;
     private String clientSecret;

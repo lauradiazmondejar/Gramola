@@ -22,7 +22,9 @@ public class StripeTransaction {
 
     private String email;
     private String bar;
+    // Diferencia pagos de suscripcion y de cancion
     private String type; // e.g. subscription, song
+    // Marca si ya se uso el pago (para evitar reutilizaciones)
     private boolean used = false;
 
     public boolean isUsed() {

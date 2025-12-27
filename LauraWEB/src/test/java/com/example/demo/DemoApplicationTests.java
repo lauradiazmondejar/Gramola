@@ -63,6 +63,7 @@ class DemoApplicationTests {
 
         assumeTrue(frontendUp(), "Front no disponible en " + baseUrl);
 
+        // Configuramos navegador y limpiamos datos antes de cada prueba
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new", "--disable-gpu", "--remote-allow-origins=*");
         driver = new ChromeDriver(options);
@@ -118,6 +119,7 @@ class DemoApplicationTests {
     }
 
     private int postSong(String email, String clientId) throws Exception {
+        // Construye y envia la peticion POST a /music/add simulando el front
         HttpURLConnection con = (HttpURLConnection) new URL("http://127.0.0.1:" + port + "/music/add").openConnection();
         con.setConnectTimeout(2000);
         con.setReadTimeout(2000);

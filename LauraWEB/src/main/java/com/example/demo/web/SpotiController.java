@@ -20,6 +20,7 @@ public class SpotiController {
 
     @GetMapping("/getAuthorizationToken")
     public SpotiToken getAuthorizationToken(@RequestParam String code, @RequestParam String clientId) {
+        // Intercambia el codigo de Spotify por un token de acceso/refresh
         return spotiService.getAuthorizationToken(code, clientId);
     }
 }

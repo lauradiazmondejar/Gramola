@@ -30,10 +30,12 @@ export class PaymentService {
   }
 
   getPrice(code: string): Observable<any> {
+    // Recupera la informacion de un precio concreto
     return this.http.get(`${this.apiUrl}/prices/${code}`);
   }
 
   listPrices(): Observable<any> {
+    // Devuelve todos los precios disponibles para pintar la UI
     return this.http.get(`${this.apiUrl}/prices`);
   }
 }

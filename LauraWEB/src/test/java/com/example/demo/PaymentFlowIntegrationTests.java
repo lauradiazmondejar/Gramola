@@ -52,6 +52,7 @@ class PaymentFlowIntegrationTests {
 
     @BeforeEach
     void clean() {
+        // Solo ejecutamos si estan habilitados y hay clave Stripe
         boolean runStripe = Boolean.parseBoolean(System.getProperty("runStripeTests", "false"));
         assumeTrue(runStripe, "Tests de Stripe desactivados (añade -DrunStripeTests=true para ejecutarlos)");
         assumeTrue(stripeSecretKey != null && !stripeSecretKey.isBlank(), "Configura stripe.secret-key para ejecutar los tests de Stripe");
@@ -108,3 +109,4 @@ class PaymentFlowIntegrationTests {
         assertFalse(saved.isPaid(), "El usuario no debe quedar pagado si Stripe no confirma");
     }
 }
+

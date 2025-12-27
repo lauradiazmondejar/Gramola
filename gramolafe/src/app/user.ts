@@ -14,6 +14,7 @@ export class UserService {
 
   // 2. CORREGIDO: Añadidos los argumentos que faltaban (bar, clientId, clientSecret, firma)
   register(bar: string, email: string, pwd1: string, pwd2: string, clientId: string, clientSecret: string, lat?: number, lon?: number, signature?: string) {
+    // Construye el cuerpo de registro y lo envia al backend
     let info = {
       bar: bar,
       email: email,
@@ -30,6 +31,7 @@ export class UserService {
   }
 
   login(email: string, pwd: string): Observable<any> {
+    // Solicita login y espera clientId y firma de respuesta
     let info = {
       email: email,
       password: pwd
@@ -39,10 +41,16 @@ export class UserService {
   }
 
   requestReset(email: string) {
+    // Pide al backend que genere un token de reseteo
     return this.http.post(this.apiUrl.replace('register', 'reset/request'), { email });
   }
 
   confirmReset(token: string, pwd1: string, pwd2: string) {
+    // Finaliza el reseteo de contrasena con el token recibido
     return this.http.post(this.apiUrl.replace('register', 'reset/confirm'), { token, pwd1, pwd2 });
   }
 }
+
+
+
+

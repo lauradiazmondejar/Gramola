@@ -5,6 +5,7 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Price {
+    // Codigo usado para identificar el tipo de producto
     @Id
     private String code; // e.g. subscription_monthly, subscription_annual, song
 

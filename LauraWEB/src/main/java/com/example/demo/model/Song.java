@@ -14,6 +14,7 @@ public class Song {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Datos principales de la cancion solicitada
     private String title;
     private String artist;
     private String uri; // El identificador de Spotify (spotify:track:...)

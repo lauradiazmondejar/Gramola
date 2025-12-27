@@ -29,6 +29,7 @@ public class StartupConfigValidator {
 
     @PostConstruct
     public void checkConfig() {
+        // Comprueba en arranque que las variables sensibles esten presentes
         if (stripeSecretKey == null || stripeSecretKey.isBlank()) {
             log.error("Falta la clave secreta de Stripe (stripe.secret-key / STRIPE_SECRET_KEY). Los pagos fallarán.");
         }

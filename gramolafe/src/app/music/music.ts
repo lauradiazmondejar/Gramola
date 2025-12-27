@@ -48,6 +48,7 @@ export class Music implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Carga datos iniciales de Spotify y precios al entrar en la vista
     this.userSignature = sessionStorage.getItem('signature') || '';
     this.cargarDispositivos();
     this.cargarPlaylists();
@@ -62,6 +63,7 @@ export class Music implements OnInit {
   }
 
   cargarDispositivos() {
+    // Obtiene los dispositivos Spotify disponibles para reproducir
     this.spotiService.getDevices().subscribe({
       next: (data) => {
         this.devices = data.devices || [];
@@ -75,6 +77,7 @@ export class Music implements OnInit {
   }
 
   cargarPlaylists() {
+    // Lista las playlists del usuario para mostrarlas
     this.spotiService.getPlaylists().subscribe({
       next: (data) => {
         this.playlists = data.items || [];
@@ -86,6 +89,7 @@ export class Music implements OnInit {
   }
 
   cargarCola() {
+    // Recupera la cola y la cancion en reproduccion; simula si no hay permiso
     this.spotiService.getQueue().subscribe({
       next: (data) => {
         this.nowPlaying = data.currently_playing;
@@ -101,6 +105,7 @@ export class Music implements OnInit {
   }
 
   cargarPlaybackActual() {
+    // Consulta lo que se esta reproduciendo y la playlist asociada
     this.spotiService.getCurrentPlayback().subscribe({
       next: (data) => {
         this.isPlaying = !!data?.is_playing;
@@ -139,6 +144,7 @@ export class Music implements OnInit {
   }
 
   reproducirPlaylist(list: any) {
+    // Lanza la reproduccion de una playlist en el dispositivo activo
     if (!this.currentDevice) {
       this.errorMsg = 'No hay ningun dispositivo activo.';
       return;
@@ -162,6 +168,7 @@ export class Music implements OnInit {
   }
 
   reanudarReproduccion() {
+    // Reanuda la reproduccion en Spotify si estaba pausada
     if (!this.currentDevice) {
       this.errorMsg = 'No hay dispositivo para reproducir.';
       return;
@@ -180,6 +187,7 @@ export class Music implements OnInit {
   }
 
   cargarPrecioCancion() {
+    // Consulta al backend el precio de una cancion individual
     this.paymentService.getPrice('song').subscribe({
       next: (price: any) => {
         this.songPriceCents = price.amount;
@@ -191,6 +199,7 @@ export class Music implements OnInit {
   }
 
   buscar() {
+    // Usa la API de Spotify para buscar canciones por texto
     if (!this.searchTerm) return;
 
     this.spotiService.search(this.searchTerm).subscribe({
@@ -206,6 +215,7 @@ export class Music implements OnInit {
   }
 
   add(track: any) {
+    // Valida ubicacion/pago y encola la cancion en Spotify
     if (!this.currentDevice) {
       this.errorMsg = 'No hay ningun dispositivo activo. Dale al Play en Spotify primero.';
       return;
@@ -255,6 +265,7 @@ export class Music implements OnInit {
   }
 
   solicitarCancion(track: any) {
+    // Dispara el flujo de pago por cancion individual
     this.cancionSeleccionada = track;
     this.pagandoCancion = true;
     this.errorMsg = '';
@@ -277,6 +288,7 @@ export class Music implements OnInit {
   }
 
   montarFormularioStripe() {
+    // Prepara el card element de Stripe para el pago de canciones
     this.elements = this.stripe.elements();
     const style = {
       base: {
@@ -289,6 +301,7 @@ export class Music implements OnInit {
   }
 
   confirmarPago() {
+    // Confirma el pago de cancion en Stripe y luego en backend
     if (!this.clientSecret) {
       this.errorMsg = 'No hay intento de pago activo';
       return;
@@ -320,12 +333,14 @@ export class Music implements OnInit {
   }
 
   cancelarPago() {
+    // Sale del modal de pago y limpia el formulario de tarjeta
     this.pagandoCancion = false;
     this.cancionSeleccionada = null;
     if (this.card) this.card.destroy();
   }
 
   ejecutarPedido() {
+    // Tras pagar, valida ubicacion y encola la cancion solicitada
     this.pagandoCancion = false;
     
     if (!this.currentDevice) {
@@ -367,6 +382,7 @@ export class Music implements OnInit {
   }
 
   guardarEnHistorial(track: any, onOk?: () => void, onError?: (err: any) => void) {
+    // Envia la peticion de cancion al backend incluyendo ubicacion si esta disponible
     const clientId = sessionStorage.getItem('clientId');
     const email = sessionStorage.getItem('email');
     const barName = sessionStorage.getItem('bar');
@@ -422,6 +438,7 @@ export class Music implements OnInit {
   }
 
   private cargarColaLocal() {
+    // Carga la cola desde el backend para simular reproduccion sin Premium
     const email = sessionStorage.getItem('email');
     if (!email) { return; }
     this.http.get(`${this.backendBase}/music/queue?email=${encodeURIComponent(email)}`).subscribe({
@@ -443,8 +460,27 @@ export class Music implements OnInit {
   }
 
   private simularColaLocal(track: any) {
+    // Cuando falta Premium, añade la cancion a la cola local de manera simulada
     this.cargarColaLocal();
     this.successMsg = `"${track.name}" aÃ±adida en modo simulado (sin Premium).`;
     setTimeout(() => this.successMsg = '', 4000);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

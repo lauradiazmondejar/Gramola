@@ -7,4 +7,5 @@ import com.example.demo.model.Price;
 
 @Repository
 public interface PriceDao extends JpaRepository<Price, String> {
+    // Repositorio para consultar los precios configurados
 }

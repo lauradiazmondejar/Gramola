@@ -21,7 +21,7 @@ public class SecretEncryptionService {
 
     @PostConstruct
     public void init() {
-        // Ensure 32 bytes (AES-256). If provided key is shorter, pad with zeros.
+        // Prepara la clave simetrica de 32 bytes para AES-256 rellenando con ceros si falta
         byte[] keyBytes = new byte[32];
         byte[] src = secretKeyConfig.getBytes(StandardCharsets.UTF_8);
         System.arraycopy(src, 0, keyBytes, 0, Math.min(src.length, keyBytes.length));
@@ -33,6 +33,7 @@ public class SecretEncryptionService {
             return plain;
         }
         try {
+            // Genera IV aleatorio y encripta usando AES/GCM
             byte[] iv = new byte[12];
             random.nextBytes(iv);
 
@@ -46,7 +47,7 @@ public class SecretEncryptionService {
             buffer.put(encrypted);
             return Base64.getEncoder().encodeToString(buffer.array());
         } catch (Exception e) {
-            // In case of error, return original to avoid blocking registration; log could be added.
+            // En caso de error devolvemos el valor en claro para no bloquear el flujo
             return plain;
         }
     }

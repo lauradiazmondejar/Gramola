@@ -7,6 +7,7 @@ public class ServletInitializer extends SpringBootServletInitializer {
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		// Configura el despliegue tradicional apuntando a la clase principal
 		return application.sources(DemoApplication.class);
 	}
 

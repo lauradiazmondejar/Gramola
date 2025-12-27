@@ -10,5 +10,6 @@ import com.example.demo.model.StripeTransaction;
 @Repository
 public interface StripeTransactionDao extends JpaRepository<StripeTransaction, String> {
 
+    // Recupera el ultimo pago no consumido por email y tipo de precio
     Optional<StripeTransaction> findFirstByEmailAndPriceCodeAndUsedFalse(String email, String priceCode);
 }

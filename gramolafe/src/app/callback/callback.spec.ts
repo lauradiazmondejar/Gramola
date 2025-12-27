@@ -18,6 +18,7 @@ describe('Callback', () => {
   });
 
   it('should create', () => {
+    // Verifica que el componente se instancia correctamente
     expect(component).toBeTruthy();
   });
 });

@@ -6,4 +6,5 @@ import com.example.demo.model.Token;
 
 @Repository
 public interface TokenDao extends JpaRepository<Token, String> {
+    // Repositorio para tokens de confirmacion y reseteo
 }

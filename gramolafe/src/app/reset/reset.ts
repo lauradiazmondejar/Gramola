@@ -22,6 +22,7 @@ export class Reset implements OnInit {
   constructor(private route: ActivatedRoute, private router: Router, private userService: UserService) {}
 
   ngOnInit(): void {
+    // Lee el token de la URL para validar el reset
     this.token = this.route.snapshot.queryParams['token'] || '';
     if (!this.token) {
       this.error = 'Falta el token en la URL';
@@ -29,6 +30,7 @@ export class Reset implements OnInit {
   }
 
   reset() {
+    // Valida las nuevas contrasenas y llama al backend
     this.success = undefined;
     this.error = undefined;
     if (!this.token) {
@@ -51,3 +53,5 @@ export class Reset implements OnInit {
     });
   }
 }
+
+

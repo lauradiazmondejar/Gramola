@@ -33,6 +33,7 @@ class MusicServiceTests {
 
     @BeforeEach
     void clean() {
+        // Dejamos BD limpia antes de cada caso de prueba
         songDao.deleteAll();
         stripeDao.deleteAll();
         userDao.deleteAll();
@@ -92,6 +93,7 @@ class MusicServiceTests {
     }
 
     private User baseUser(boolean withLocation) {
+        // Crea un usuario base para las pruebas, con ubicacion opcional
         User user = new User();
         user.setEmail("bar@test.com");
         user.setBar("Bar Test");
@@ -105,3 +107,4 @@ class MusicServiceTests {
         return user;
     }
 }
+

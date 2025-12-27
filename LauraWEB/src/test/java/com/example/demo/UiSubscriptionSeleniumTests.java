@@ -121,6 +121,7 @@ class UiSubscriptionSeleniumTests {
 
     // Helpers
     private void abrirPaginaPago(String token) {
+        // Abre el front en la vista de pago usando el token de registro
         driver.get(baseUrl + "/payment?token=" + token);
     }
 
@@ -146,6 +147,7 @@ class UiSubscriptionSeleniumTests {
     }
 
     private void seedPrice(String code, String desc, long amount) {
+        // Inserta el precio si no existe para que Stripe pueda usarlo en pruebas
         priceDao.findById(code).ifPresentOrElse(p -> {}, () -> {
             Price price = new Price();
             price.setCode(code);

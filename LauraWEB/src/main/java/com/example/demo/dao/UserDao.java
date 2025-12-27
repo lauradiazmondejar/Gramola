@@ -9,6 +9,7 @@ import com.example.demo.model.User;
 
 @Repository
 public interface UserDao extends JpaRepository<User, String> {
+    // Busquedas auxiliares por tokens y clientId
     Optional<User> findByCreationToken_Id(String tokenId);
 
     Optional<User> findFirstByClientId(String clientId);

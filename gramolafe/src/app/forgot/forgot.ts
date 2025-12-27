@@ -17,6 +17,7 @@ export class Forgot {
   constructor(private userService: UserService) {}
 
   solicitar() {
+    // Pide al backend el envio del correo de reseteo
     this.success = undefined;
     this.error = undefined;
     if (!this.email) {
@@ -34,3 +35,4 @@ export class Forgot {
     });
   }
 }
+

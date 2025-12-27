@@ -30,6 +30,7 @@ public class MusicService {
     private PaymentService paymentService;
 
     public void addSong(String title, String artist, String uri, String email, String clientId, Double userLat, Double userLon) {
+        // Procesa la peticion de agregar cancion validando pagos y datos
         if (email == null || email.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta el email del bar logueado");
         }
@@ -53,6 +54,7 @@ public class MusicService {
         }
 
         if (bar.getLatitude() != null && bar.getLongitude() != null) {
+            // Si el bar tiene ubicacion guardada, comprobamos la distancia del cliente
             
             if (userLat == null || userLon == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este bar requiere ubicación. Activa tu GPS.");
@@ -82,6 +84,7 @@ public class MusicService {
         if (email == null || email.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta el email del bar");
         }
+        // Validamos que el bar exista antes de devolver la cola
         userDao.findById(email)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bar no encontrado"));
         return songDao.findByBar_EmailOrderByDateAsc(email);
@@ -103,3 +106,5 @@ public class MusicService {
         return distanciaKm * 1000; // Convertimos a metros
     }
 }
+
+

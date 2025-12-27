@@ -12,6 +12,7 @@
 </div>
 
 <div class="music-grid">
+  <!-- Paneles con busqueda, dispositivos, playlists y cola -->
   <div class="card">
     <div class="section-title">
       <h3>Buscar canción</h3>
@@ -106,6 +107,7 @@
 </div>
 
 <div class="modal-overlay" *ngIf="pagandoCancion">
+  <!-- Modal de pago por cancion individual -->
   <div class="modal-content">
     <h3>Confirmar pedido</h3>
     <p>Vas a poner: <strong>{{ cancionSeleccionada?.name }}</strong></p>
@@ -121,3 +123,5 @@
     </div>
   </div>
 </div>
+
+

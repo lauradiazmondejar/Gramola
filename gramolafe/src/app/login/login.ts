@@ -36,6 +36,7 @@ export class Login {
   constructor(private service: UserService, private router: Router) {}
 
   loguear() {
+    // Valida credenciales y almacena datos en sessionStorage
     if (!this.email || !this.pwd) {
       this.errorMsg = "Rellena todos los campos";
       return;
@@ -69,6 +70,7 @@ export class Login {
   }
 
   iniciarSpotifyOAuth(clientId: string) {
+    // Construye la URL de autorizacion y redirige al login de Spotify
     const state = this.generateRandomString(16);
     sessionStorage.setItem("oauth_state", state);
 
@@ -85,6 +87,7 @@ export class Login {
   }
 
   generateRandomString(length: number) {
+    // Genera el estado aleatorio para proteger el OAuth
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     for (let i = 0; i < length; i++) {
@@ -93,3 +96,6 @@ export class Login {
     return text;
   }
 }
+
+
+
