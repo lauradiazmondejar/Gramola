@@ -40,6 +40,11 @@ export class UserService {
     return this.http.post(this.apiUrl.replace('register', 'login'), info);
   }
 
+  verifyPassword(email: string, pwd: string): Observable<any> {
+    // Verifica credenciales sin alterar el flujo del login
+    return this.login(email, pwd);
+  }
+
   requestReset(email: string) {
     // Pide al backend que genere un token de reseteo
     return this.http.post(this.apiUrl.replace('register', 'reset/request'), { email });

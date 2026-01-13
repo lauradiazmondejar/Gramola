@@ -71,7 +71,7 @@
 
   <div class="card">
     <div class="section-title">
-      <h3>Playlist en reproducciÛn</h3>
+      <h3>Playlist en reproducción</h3>
       <div>
         <button class="btn btn-ghost" (click)="cargarPlaybackActual()">Refrescar</button>
         <button class="btn btn-ghost" *ngIf="!isPlaying && currentDevice" (click)="reanudarReproduccion()">Reanudar en {{ currentDevice?.name }}</button>
@@ -106,6 +106,26 @@
   </div>
 </div>
 
+<div class="modal-overlay" *ngIf="confirmandoPlaylist">
+  <div class="modal-content">
+    <h3>Verificacion de empleado</h3>
+    <p class="muted">Introduce la contraseña del bar para reproducir: <strong>{{ playlistObjetivo?.name }}</strong></p>
+
+    <div class="auth-box">
+      <label for="playlist-pass">Contraseña</label>
+      <input id="playlist-pass" type="password" [(ngModel)]="playlistPassword" placeholder="Contraseña del bar" (keyup.enter)="confirmarReproduccionPlaylist()">
+    </div>
+
+    <div *ngIf="playlistError" class="msg error">{{ playlistError }}</div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="cancelarConfirmacionPlaylist()" [disabled]="verificandoPlaylist">Cancelar</button>
+      <button class="btn-pay" (click)="confirmarReproduccionPlaylist()" [disabled]="verificandoPlaylist">
+        {{ verificandoPlaylist ? 'Verificando...' : 'Autorizar y reproducir' }}
+      </button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" *ngIf="pagandoCancion">
   <!-- Modal de pago por cancion individual -->
   <div class="modal-content">

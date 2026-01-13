@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SpotiService } from '../spoti';
 import { HttpClient } from '@angular/common/http';
 import { PaymentService } from '../payment';
+import { UserService } from '../user';
 
 declare let Stripe: any;
 
@@ -40,11 +41,17 @@ export class Music implements OnInit {
   pagandoCancion: boolean = false;
   cancionSeleccionada: any = null;
   songPriceCents?: number;
+  confirmandoPlaylist = false;
+  playlistObjetivo: any = null;
+  playlistPassword = '';
+  playlistError = '';
+  verificandoPlaylist = false;
 
   constructor(
     private spotiService: SpotiService,
     private http: HttpClient,
-    private paymentService: PaymentService
+    private paymentService: PaymentService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -149,7 +156,64 @@ export class Music implements OnInit {
       this.errorMsg = 'No hay ningun dispositivo activo.';
       return;
     }
+
+    const email = sessionStorage.getItem('email');
+    if (!email) {
+      this.errorMsg = 'Sesion invalida. Vuelve a iniciar sesion.';
+      return;
+    }
+
     this.errorMsg = '';
+    this.playlistObjetivo = list;
+    this.playlistPassword = '';
+    this.playlistError = '';
+    this.confirmandoPlaylist = true;
+  }
+
+  confirmarReproduccionPlaylist() {
+    if (!this.playlistObjetivo) {
+      this.playlistError = 'No hay playlist seleccionada.';
+      return;
+    }
+
+    const email = sessionStorage.getItem('email');
+    if (!email) {
+      this.playlistError = 'Sesion invalida. Vuelve a iniciar sesion.';
+      return;
+    }
+
+    if (!this.playlistPassword) {
+      this.playlistError = 'Introduce la contraseña del bar.';
+      return;
+    }
+
+    this.playlistError = '';
+    this.verificandoPlaylist = true;
+    this.userService.verifyPassword(email, this.playlistPassword).subscribe({
+      next: () => {
+        const list = this.playlistObjetivo;
+        this.verificandoPlaylist = false;
+        this.confirmandoPlaylist = false;
+        this.playlistObjetivo = null;
+        this.playlistPassword = '';
+        this.iniciarReproduccionPlaylist(list);
+      },
+      error: (err) => {
+        console.error(err);
+        this.verificandoPlaylist = false;
+        this.playlistError = 'Contraseña incorrecta o no autorizada.';
+      }
+    });
+  }
+
+  cancelarConfirmacionPlaylist() {
+    this.confirmandoPlaylist = false;
+    this.playlistObjetivo = null;
+    this.playlistPassword = '';
+    this.playlistError = '';
+    this.verificandoPlaylist = false;
+  }
+  private iniciarReproduccionPlaylist(list: any) {
     this.spotiService.startPlaylist(list.uri, this.currentDevice.id).subscribe({
       next: () => {
         this.currentPlaylistName = list.name;
@@ -460,7 +524,7 @@ export class Music implements OnInit {
   }
 
   private simularColaLocal(track: any) {
-    // Cuando falta Premium, a�ade la cancion a la cola local de manera simulada
+    // Cuando falta Premium, a�ade la cancion a la cola local de manera simulada
     this.cargarColaLocal();
     this.successMsg = `"${track.name}" añadida en modo simulado (sin Premium).`;
     setTimeout(() => this.successMsg = '', 4000);

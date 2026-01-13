@@ -124,6 +124,22 @@
   margin-top: 16px;
 }
 
+.auth-box {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 8px;
+}
+
+.auth-box input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.modal-content .msg.error {
+  margin-top: 10px;
+}
 .stripe-box {
   margin: 12px 0;
   padding: 12px;
