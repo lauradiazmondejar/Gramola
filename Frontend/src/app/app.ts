@@ -9,5 +9,5 @@ import { RouterOutlet } from '@angular/router';
 })
 export class App {
   // Signal usado para exponer el titulo de la aplicacion
-  protected readonly title = signal('gramolafe');
+  protected readonly title = signal('frontend');
 }
