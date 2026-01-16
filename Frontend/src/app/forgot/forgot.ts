@@ -9,6 +9,7 @@ import { UserService } from '../user';
   imports: [CommonModule, FormsModule],
   templateUrl: './forgot.html'
 })
+// Solicitud de reset de password via email.
 export class Forgot {
   email = '';
   success?: string;
@@ -17,7 +18,7 @@ export class Forgot {
   constructor(private userService: UserService) {}
 
   solicitar() {
-    // Pide al backend el envio del correo de reseteo
+    // Pide al backend el envio del correo de reseteo.
     this.success = undefined;
     this.error = undefined;
     if (!this.email) {

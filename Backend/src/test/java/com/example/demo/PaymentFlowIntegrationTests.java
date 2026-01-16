@@ -25,7 +25,7 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentConfirmParams;
 
 /**
- * Flujos de suscripción con Stripe (solo se ejecutan si se habilita runStripeTests=true y hay clave Stripe).
+ * Flujos de suscripcion con Stripe (solo se ejecutan si se habilita runStripeTests=true y hay clave Stripe).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PaymentFlowIntegrationTests {
@@ -52,7 +52,7 @@ class PaymentFlowIntegrationTests {
 
     @BeforeEach
     void clean() {
-        // Solo ejecutamos si estan habilitados y hay clave Stripe
+        // Solo ejecutamos si estan habilitados y hay clave Stripe.
         boolean runStripe = Boolean.parseBoolean(System.getProperty("runStripeTests", "false"));
         assumeTrue(runStripe, "Tests de Stripe desactivados (añade -DrunStripeTests=true para ejecutarlos)");
         assumeTrue(stripeSecretKey != null && !stripeSecretKey.isBlank(), "Configura stripe.secret-key para ejecutar los tests de Stripe");
@@ -78,7 +78,7 @@ class PaymentFlowIntegrationTests {
         JsonNode node = mapper.readTree(prepayJson);
         String stripeId = node.get("id").asText();
 
-        // Confirmar en Stripe con tarjeta de prueba OK
+        // Confirmar en Stripe con tarjeta de prueba OK.
         PaymentIntent intent = PaymentIntent.retrieve(stripeId);
         PaymentIntentConfirmParams confirmParams = PaymentIntentConfirmParams.builder()
                 .setPaymentMethod("pm_card_visa")
@@ -100,7 +100,7 @@ class PaymentFlowIntegrationTests {
         JsonNode node = mapper.readTree(prepayJson);
         String stripeId = node.get("id").asText();
 
-        // No se confirma el PaymentIntent (estatus seguirá en requires_payment_method)
+        // No se confirma el PaymentIntent (estatus seguira en requires_payment_method).
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () ->
                 paymentService.confirm(stripeId, stripeId, token));
         assertEquals(400, ex.getStatusCode().value());

@@ -36,6 +36,8 @@ import io.github.bonigarcia.wdm.WebDriverManager;
  * E2E UI para pago de suscripcion via Stripe test cards.
  * Requiere: front sirviendo en 127.0.0.1:4200 y Stripe secreto configurado.
  * Habilitar con: -DrunUiStripeTests=true
+ *
+ * Cubre el requisito del enunciado: el bar paga suscripcion tras confirmar su cuenta.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = { "server.port=8080" })
 @ActiveProfiles("test")
@@ -66,10 +68,10 @@ class UiSubscriptionSeleniumTests {
         assumeTrue(Boolean.parseBoolean(System.getProperty("runUiStripeTests", "false")),
                 "UI Stripe tests desactivados (añade -DrunUiStripeTests=true)");
 
-        // Precios requeridos en BD
+        // Precios requeridos en BD (enunciado: precios en BD, no hardcode).
         seedPrice("subscription_monthly", "Suscripcion mensual", 1000L);
 
-        // Limpieza de usuarios
+        // Limpieza de usuarios.
         userDao.deleteAll();
 
         ChromeOptions options = new ChromeOptions();
@@ -95,7 +97,7 @@ class UiSubscriptionSeleniumTests {
         rellenarTarjeta("4242424242424242", "12/34", "123");
         confirmarPagoEnStripe();
 
-        // Esperar mensaje de éxito y redirección a login
+        // Esperar mensaje de exito y redireccion a login.
         wait.until(ExpectedConditions.urlContains("/login"));
 
         User saved = userDao.findById(email).orElseThrow();
@@ -112,16 +114,16 @@ class UiSubscriptionSeleniumTests {
         rellenarTarjeta("4000000000000002", "12/34", "123"); // tarjeta de rechazo
         confirmarPagoEnStripe();
 
-        // Debe mostrarse un mensaje de error y no redirigir
-        // Damos unos segundos para que aparezca feedback
+        // Debe mostrarse un mensaje de error y no redirigir.
+        // Damos unos segundos para que aparezca feedback.
         Thread.sleep(3000);
         User saved = userDao.findById(email).orElseThrow();
         assertFalse(saved.isPaid(), "El usuario no debe quedar pagado si Stripe rechaza");
     }
 
-    // Helpers
+    // Helpers de UI Selenium.
     private void abrirPaginaPago(String token) {
-        // Abre el front en la vista de pago usando el token de registro
+        // Abre el front en la vista de pago usando el token de registro.
         driver.get(baseUrl + "/payment?token=" + token);
     }
 
@@ -131,10 +133,10 @@ class UiSubscriptionSeleniumTests {
     }
 
     private void rellenarTarjeta(String num, String exp, String cvc) {
-        // Stripe Elements usa iframes; buscamos el primero
+        // Stripe Elements usa iframes; buscamos el primero.
         wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.cssSelector("iframe[name^='__privateStripeFrame']")));
         List<WebElement> inputs = wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.cssSelector("input[name]"), 0));
-        // Orden típico: cardnumber, exp-date, cvc, postal
+        // Orden tipico: cardnumber, exp-date, cvc, postal.
         inputs.get(0).sendKeys(num);
         inputs.get(1).sendKeys(exp);
         inputs.get(2).sendKeys(cvc);
@@ -147,7 +149,7 @@ class UiSubscriptionSeleniumTests {
     }
 
     private void seedPrice(String code, String desc, long amount) {
-        // Inserta el precio si no existe para que Stripe pueda usarlo en pruebas
+        // Inserta el precio si no existe para que Stripe pueda usarlo en pruebas.
         priceDao.findById(code).ifPresentOrElse(p -> {}, () -> {
             Price price = new Price();
             price.setCode(code);

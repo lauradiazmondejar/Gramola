@@ -11,6 +11,7 @@ import { UserService } from '../user';
   templateUrl: './register.html',
   styleUrl: './register.css'
 })
+// Registro de bar: datos de cuenta, Spotify, geolocalizacion y firma.
 export class Register implements AfterViewInit {
   bar?: string;
   email?: string;
@@ -37,7 +38,7 @@ export class Register implements AfterViewInit {
   constructor(private service: UserService) {}
 
   obtenerUbicacion() {
-    // Pide coordenadas al navegador para asociarlas al bar
+    // Pide coordenadas al navegador para asociarlas al bar.
     if (navigator.geolocation) {
       this.ubicacionMsg = 'Obteniendo coordenadas...';
       navigator.geolocation.getCurrentPosition(
@@ -57,7 +58,7 @@ export class Register implements AfterViewInit {
   }
 
   registrar() {
-    // Valida los campos y llama al backend para crear el usuario
+    // Valida los campos y llama al backend para crear el usuario.
     this.registroOK = false;
     this.registroKO = false;
     this.errorMsg = undefined;
@@ -100,7 +101,7 @@ export class Register implements AfterViewInit {
   }
 
   async obtenerCoordenadasPorDireccion() {
-    // Consulta Nominatim para traducir la direccion en coordenadas
+    // Consulta Nominatim para traducir la direccion en coordenadas.
     const query = this.address?.trim();
     if (!query) {
       this.ubicacionMsg = 'Por favor, escribe una dirección primero.';
@@ -136,7 +137,7 @@ export class Register implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Prepara el canvas para capturar la firma con el raton
+    // Prepara el canvas para capturar la firma con el raton.
     const canvasEl: HTMLCanvasElement = this.canvasRef.nativeElement;
     this.cx = canvasEl.getContext('2d')!;
 
@@ -151,7 +152,7 @@ export class Register implements AfterViewInit {
   }
 
   startDrawing(e: MouseEvent) {
-    // Inicia el trazo en el canvas cuando se pulsa el raton
+    // Inicia el trazo en el canvas cuando se pulsa el raton.
     this.isDrawing = true;
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     this.cx.beginPath();
@@ -159,7 +160,7 @@ export class Register implements AfterViewInit {
   }
 
   draw(e: MouseEvent) {
-    // Traza lineas siguiendo el puntero mientras se arrastra
+    // Traza lineas siguiendo el puntero mientras se arrastra.
     if (!this.isDrawing) return;
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     this.cx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
@@ -167,7 +168,7 @@ export class Register implements AfterViewInit {
   }
 
   stopDrawing() {
-    // Cierra el trazo cuando se levanta el raton o se sale del canvas
+    // Cierra el trazo cuando se levanta el raton o se sale del canvas.
     if (this.isDrawing) {
       this.cx.closePath();
       this.isDrawing = false;
@@ -175,7 +176,7 @@ export class Register implements AfterViewInit {
   }
 
   limpiarFirma() {
-    // Borra la firma actual del canvas
+    // Borra la firma actual del canvas.
     const canvas = this.canvasRef.nativeElement;
     this.cx.clearRect(0, 0, canvas.width, canvas.height);
   }

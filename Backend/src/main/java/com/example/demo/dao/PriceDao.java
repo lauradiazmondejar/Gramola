@@ -5,7 +5,10 @@ import org.springframework.stereotype.Repository;
 
 import com.example.demo.model.Price;
 
+/**
+ * Repositorio de precios configurados en BD (suscripciones y cancion).
+ */
 @Repository
 public interface PriceDao extends JpaRepository<Price, String> {
-    // Repositorio para consultar los precios configurados
+    // Marcador: la interfaz hereda operaciones CRUD basicas.
 }

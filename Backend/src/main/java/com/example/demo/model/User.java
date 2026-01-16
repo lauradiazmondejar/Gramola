@@ -8,16 +8,20 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 
+/**
+ * Entidad que representa al bar propietario de la gramola.
+ */
 @Entity
 @Table(name = "bars")
 public class User {
-    // Email del bar usado como identificador
+    // Email del bar usado como identificador.
     @Id
     private String email;
     private String password;
-    // Nombre comercial del bar
+    // Nombre comercial del bar.
     private String bar;
     private String clientId;
+    // clientSecret de Spotify cifrado en BD.
     private String clientSecret;
     private Double latitude;
     private Double longitude;
@@ -29,10 +33,12 @@ public class User {
     @JoinColumn(name = "reset_token_id", referencedColumnName = "id")
     private Token resetToken;
 
+    // Firma digital (imagen base64) capturada en el registro.
     @jakarta.persistence.Lob
     @jakarta.persistence.Column(columnDefinition = "LONGTEXT")
     private String signature;
 
+    // Indica si el bar ya pago la suscripcion.
     private boolean paid = false;
 
     public String getEmail() { return email; }

@@ -6,14 +6,17 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 
+/**
+ * Token de confirmacion de cuenta o de reseteo de password.
+ */
 @Entity
 public class Token {
-    // Identificador unico usado en confirmaciones y reseteos
+    // Identificador unico usado en confirmaciones y reseteos.
     @Id @Column(length = 36)
     private String id;
-    // Instante de creacion del token
+    // Instante de creacion del token.
     private long creationtime;
-    // Instante en que se marco como usado (0 si sigue activo)
+    // Instante en que se marco como usado (0 si sigue activo).
     private long usetime= 0;
     @OneToOne(mappedBy = "creationToken")
     private User user;

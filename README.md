@@ -19,7 +19,6 @@ Repositorio con backend Spring Boot y frontend Angular para la gramola.
 - MAILTRAP_PASS
 - STRIPE_SECRET_KEY
 - APP_CRYPTO_KEY (32 bytes, para cifrar clientSecret de Spotify)
-- Opcional: APP_PRICE_SUBSCRIPTION_MONTHLY, APP_PRICE_SUBSCRIPTION_ANNUAL, APP_PRICE_SONG
 - Opcional: APP_FRONTEND_HOST (si el front no esta en 127.0.0.1:4200)
 
 ## Ejecutar backend
@@ -46,3 +45,15 @@ ng serve --host 127.0.0.1 --port 4200
 - Backend escucha en http://127.0.0.1:8080.
 - Frontend se sirve en http://127.0.0.1:4200.
 - Si usas Run Java en VS Code, abre VS Code desde una terminal que ya tenga las variables.
+
+## Precios en base de datos (obligatorio)
+Los importes de suscripcion y de cancion **no se hardcodean** ni se guardan en archivos de recursos.
+Deben estar en la tabla `price` de la base de datos y el backend los lee en tiempo de ejecucion.
+
+Ejemplo de insercion manual (MySQL):
+```sql
+INSERT INTO price (code, description, amount) VALUES
+('subscription_monthly', 'Suscripcion mensual', 1000),
+('subscription_annual', 'Suscripcion anual', 10000),
+('song', 'Cancion individual', 50);
+```

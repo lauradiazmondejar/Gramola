@@ -14,11 +14,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
 
+/**
+ * Logica de negocio para la cola de canciones.
+ * Valida pagos, pertenencia del bar y geolocalizacion (radio 100m).
+ */
 @Service
 public class MusicService {
 
     private static final Logger log = LoggerFactory.getLogger(MusicService.class);
-    private static final double MAX_DISTANCE_METERS = 100.0; // Límite de 100m según enunciado
+    private static final double MAX_DISTANCE_METERS = 100.0; // Limite de 100m segun enunciado.
 
     @Autowired
     private SongDao songDao;
@@ -30,31 +34,31 @@ public class MusicService {
     private PaymentService paymentService;
 
     public void addSong(String title, String artist, String uri, String email, String clientId, Double userLat, Double userLon) {
-        // Procesa la peticion de agregar cancion validando pagos y datos
+        // Procesa la peticion de agregar cancion validando pagos y datos.
         if (email == null || email.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta el email del bar logueado");
         }
         if (clientId == null || clientId.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ClientId vacío en la petición");
         }
-        // Consumimos un pago de canción si hay
+        // Consumimos un pago de cancion si hay.
         try {
             paymentService.consumeSongPayment(email);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED, "Pago de canción no validado");
         }
 
-        // Buscar al bar dueño de la sesión por email
+        // Buscar al bar dueno de la sesion por email.
         User bar = userDao.findById(email)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bar no encontrado"));
 
-        // Validar que el clientId enviado corresponde a ese bar
+        // Validar que el clientId enviado corresponde a ese bar.
         if (bar.getClientId() == null || !bar.getClientId().equals(clientId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El bar logueado no coincide con el clientId");
         }
 
         if (bar.getLatitude() != null && bar.getLongitude() != null) {
-            // Si el bar tiene ubicacion guardada, comprobamos la distancia del cliente
+            // Si el bar tiene ubicacion guardada, comprobamos la distancia del cliente.
             
             if (userLat == null || userLon == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este bar requiere ubicación. Activa tu GPS.");
@@ -64,7 +68,7 @@ public class MusicService {
             
             log.info("Distancia calculada: {} metros. Bar=({}, {}) Cliente=({}, {})", distanciaMetros, bar.getLatitude(), bar.getLongitude(), userLat, userLon);
 
-            // Límite según enunciado. Ajustar si se necesita margen extra.
+            // Limite segun enunciado. Ajustar si se necesita margen extra.
             if (distanciaMetros > MAX_DISTANCE_METERS) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Estás demasiado lejos del bar (" + (int)distanciaMetros + "m). Acércate para pedir música.");
             }
@@ -84,14 +88,14 @@ public class MusicService {
         if (email == null || email.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta el email del bar");
         }
-        // Validamos que el bar exista antes de devolver la cola
+        // Validamos que el bar exista antes de devolver la cola.
         userDao.findById(email)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bar no encontrado"));
         return songDao.findByBar_EmailOrderByDateAsc(email);
     }
 
     private double calcularDistancia(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371; // Radio de la Tierra en km
+        final int R = 6371; // Radio de la Tierra en km.
 
         double latDistance = Math.toRadians(lat2 - lat1);
         double lonDistance = Math.toRadians(lon2 - lon1);
@@ -103,7 +107,7 @@ public class MusicService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         
         double distanciaKm = R * c; 
-        return distanciaKm * 1000; // Convertimos a metros
+        return distanciaKm * 1000; // Convertimos a metros.
     }
 }
 

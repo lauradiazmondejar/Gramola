@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
 
 /**
- * Valida la presencia de variables críticas y avisa en consola si faltan.
+ * Valida la presencia de variables criticas y avisa en consola si faltan.
  */
 @Component
 public class StartupConfigValidator {
@@ -29,7 +29,7 @@ public class StartupConfigValidator {
 
     @PostConstruct
     public void checkConfig() {
-        // Comprueba en arranque que las variables sensibles esten presentes
+        // Comprueba en arranque que las variables sensibles esten presentes.
         if (stripeSecretKey == null || stripeSecretKey.isBlank()) {
             log.error("Falta la clave secreta de Stripe (stripe.secret-key / STRIPE_SECRET_KEY). Los pagos fallarán.");
         }

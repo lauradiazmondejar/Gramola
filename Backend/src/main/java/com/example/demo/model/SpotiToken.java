@@ -2,8 +2,11 @@ package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * DTO con el token de Spotify devuelto por el endpoint /api/token.
+ */
 public class SpotiToken {
-    // Campos devueltos por Spotify al intercambiar el codigo por token
+    // Campos devueltos por Spotify al intercambiar el codigo por token.
     @JsonProperty("access_token")
     private String accessToken;
 
@@ -13,7 +16,7 @@ public class SpotiToken {
     @JsonProperty("expires_in")
     private int expiresIn;
 
-    // Getters y Setters
+    // Getters y Setters.
     public String getAccessToken() { return accessToken; }
     public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
     

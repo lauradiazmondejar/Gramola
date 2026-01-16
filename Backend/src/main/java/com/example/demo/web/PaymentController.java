@@ -16,6 +16,10 @@ import java.util.Map;
 
 import com.example.demo.service.PaymentService;
 
+/**
+ * Endpoints de pagos: prepay para Stripe y confirmacion posterior.
+ * Los precios vienen de BD (requisito del enunciado).
+ */
 @RestController
 @RequestMapping("payments")
 @CrossOrigin(origins = {"http://127.0.0.1:4200"})
@@ -28,7 +32,7 @@ public class PaymentController {
     public String prepay(@RequestParam String code, @RequestParam(required = false) String email,
             @RequestParam(required = false) String bar, @RequestParam(defaultValue = "subscription") String type) {
         try {
-            // Llama al servicio para preparar el pago y devolver el intent de Stripe
+            // Llama al servicio para preparar el pago y devolver el intent de Stripe.
             return paymentService.prepay(code, email, bar, type);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -38,12 +42,12 @@ public class PaymentController {
     @PostMapping("/confirm")
     public String confirm(@RequestBody Map<String, Object> body) {
         try {
-            // Extrae datos enviados por el front al confirmar el pago
+            // Extrae datos enviados por el front al confirmar el pago.
             String stripeId = (String) body.get("stripeId");
             String internalId = (String) body.get("internalId");
             String token = (String) body.get("token"); // puede ser null para pagos de cancion
 
-            // Marca el pago como confirmado en base de datos
+            // Marca el pago como confirmado en base de datos.
             paymentService.confirm(stripeId, internalId, token);
             return "OK";
         } catch (Exception e) {
@@ -59,7 +63,7 @@ public class PaymentController {
     @GetMapping("/prices/{code}")
     public com.example.demo.model.Price getPrice(@PathVariable String code) {
         try {
-            // Recupera un precio especifico para mostrarlo en el front
+            // Recupera un precio especifico para mostrarlo en el front.
             return paymentService.getPrice(code);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());

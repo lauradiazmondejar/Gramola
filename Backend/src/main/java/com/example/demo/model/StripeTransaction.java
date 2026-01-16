@@ -4,12 +4,15 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
+/**
+ * Transaccion de Stripe persistida para trazabilidad y conciliacion.
+ */
 @Entity
 public class StripeTransaction {
     @Id
     private String id; // El ID que nos da Stripe (ej: pi_3M...)
     
-    @Column(length = 10000) // Usamos un campo largo para guardar todo el JSON de respuesta
+    @Column(length = 10000) // Usamos un campo largo para guardar todo el JSON de respuesta.
     private String data; 
 
     private String priceCode;
@@ -22,9 +25,9 @@ public class StripeTransaction {
 
     private String email;
     private String bar;
-    // Diferencia pagos de suscripcion y de cancion
+    // Diferencia pagos de suscripcion y de cancion.
     private String type; // e.g. subscription, song
-    // Marca si ya se uso el pago (para evitar reutilizaciones)
+    // Marca si ya se uso el pago (para evitar reutilizaciones).
     private boolean used = false;
 
     public boolean isUsed() {
@@ -35,7 +38,7 @@ public class StripeTransaction {
         this.used = used;
     }
 
-    // Getters y Setters
+    // Getters y Setters.
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     

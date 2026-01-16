@@ -13,6 +13,10 @@ import com.example.demo.dao.UserDao;
 import com.example.demo.model.Token;
 import com.example.demo.model.User;
 
+/**
+ * Logica de negocio para cuentas de bar: registro, login, tokens y reset.
+ * Mantiene la separacion por capas (controlador -> servicio -> repositorio).
+ */
 @Service
 public class UserService {
 
@@ -29,7 +33,7 @@ public class UserService {
     private SecretEncryptionService encryptionService;
 
     public String register(String bar, String email, String pwd, String clientId, String clientSecret, Double lat, Double lon, String signature) {
-        // Alta de bar: validamos si existe y regeneramos token si estaba pendiente
+        // Alta de bar: validamos si existe y regeneramos token si estaba pendiente.
         Optional<User> optUser = userDao.findById(email);
 
         if (optUser.isPresent()) {
@@ -49,7 +53,7 @@ public class UserService {
         User user = new User();
         user.setEmail(email);
 
-        // Encriptamos con SHA-512
+        // Encriptamos con SHA-512 antes de persistir (no se guarda la clave en claro).
         user.setPassword(DigestUtils.sha512Hex(pwd));
 
         user.setBar(bar);
@@ -63,14 +67,14 @@ public class UserService {
 
         userDao.save(user);
 
-        // Enviamos correo con token de confirmacion
+        // Enviamos correo con token de confirmacion (requisito del enunciado).
         emailService.sendRegistrationEmail(email, user.getCreationToken().getId());
 
         return user.getCreationToken().getId();
     }
 
     public void requestPasswordReset(String email) {
-        // Crea token de reseteo y lo envia por correo
+        // Crea token de reseteo y lo envia por correo.
         User user = userDao.findById(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
@@ -96,17 +100,19 @@ public class UserService {
         if (reset == null) {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "No hay token de reset");
         }
+        // Expiramos el token tras 5 minutos para evitar reuso.
         if (reset.getCreationTime() < System.currentTimeMillis() - 300000) {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Token expirado");
         }
 
-        // Actualiza la contrasena y anula el token de reset
+        // Actualiza la contrasena y anula el token de reset.
         user.setPassword(DigestUtils.sha512Hex(pwd1));
         user.setResetToken(null);
         userDao.save(user);
     }
 
     public void confirmToken(String email, String token) {
+        // Verifica que el token de creacion coincida y no este expirado.
         User user = userDao.findById(email)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
@@ -128,7 +134,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.GONE, "Token already used");
         }
 
-        // Marca el token como usado para habilitar el pago
+        // Marca el token como usado para habilitar el pago.
         userToken.use();
         tokenDao.save(userToken);
     }
@@ -138,7 +144,7 @@ public class UserService {
     }
 
     public String login(String email, String pwd) {
-        // Autentica y devuelve el clientId para configurar el front
+        // Autentica y devuelve el clientId para configurar el front.
         User user = userDao.findById(email)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
@@ -147,6 +153,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Contrasena incorrecta");
         }
 
+        // El enunciado exige pago antes de usar la gramola.
         if (!user.isPaid()) {
             throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED, "Cuenta pendiente de pago");
         }
@@ -155,7 +162,7 @@ public class UserService {
     }
 
     public User getUserByClientId(String clientId) {
-        // Recupera un bar a partir de su clientId de Spotify
+        // Recupera un bar a partir de su clientId de Spotify.
         return userDao.findFirstByClientId(clientId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bar no encontrado para este Client ID"));
     }
@@ -169,11 +176,12 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Contrasena incorrecta");
         }
 
+        // El enunciado exige pago antes de usar la gramola.
         if (!user.isPaid()) {
             throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED, "Cuenta pendiente de pago");
         }
 
-        // Devuelve el usuario ya validado para construir la respuesta del login
+        // Devuelve el usuario ya validado para construir la respuesta del login.
         return user;
     }
 }

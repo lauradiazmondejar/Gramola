@@ -16,6 +16,9 @@ import com.example.demo.dao.UserDao;
 import com.example.demo.model.StripeTransaction;
 import com.example.demo.model.User;
 
+/**
+ * Pruebas unitarias del servicio de musica: pago, guardado y geofence.
+ */
 @SpringBootTest
 class MusicServiceTests {
 
@@ -33,7 +36,7 @@ class MusicServiceTests {
 
     @BeforeEach
     void clean() {
-        // Dejamos BD limpia antes de cada caso de prueba
+        // Dejamos BD limpia antes de cada caso de prueba.
         songDao.deleteAll();
         stripeDao.deleteAll();
         userDao.deleteAll();
@@ -84,7 +87,7 @@ class MusicServiceTests {
         tx.setType("song");
         stripeDao.save(tx);
 
-        // Coordenadas lejanas (>100m)
+        // Coordenadas lejanas (>100m).
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () ->
                 musicService.addSong("Test", "Tester", "spotify:track:test", bar.getEmail(), bar.getClientId(),
                         bar.getLatitude() + 0.01, bar.getLongitude() + 0.01));
@@ -93,7 +96,7 @@ class MusicServiceTests {
     }
 
     private User baseUser(boolean withLocation) {
-        // Crea un usuario base para las pruebas, con ubicacion opcional
+        // Crea un usuario base para las pruebas, con ubicacion opcional.
         User user = new User();
         user.setEmail("bar@test.com");
         user.setBar("Bar Test");

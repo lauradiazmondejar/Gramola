@@ -32,6 +32,8 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 /**
  * E2E Selenium ligero + verificaciones de BD.
  * Ejecutar con: mvn test -DrunSeleniumTests=true (front en 127.0.0.1:4200, backend en 8080).
+ *
+ * Cubre los escenarios del enunciado: pago OK agrega cancion y pago KO no agrega.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DemoApplicationTests {
@@ -63,12 +65,12 @@ class DemoApplicationTests {
 
         assumeTrue(frontendUp(), "Front no disponible en " + baseUrl);
 
-        // Configuramos navegador y limpiamos datos antes de cada prueba
+        // Configuramos navegador y limpiamos datos antes de cada prueba.
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new", "--disable-gpu", "--remote-allow-origins=*");
         driver = new ChromeDriver(options);
 
-        // Limpieza y datos base
+        // Limpieza y datos base.
         songDao.deleteAll();
         stripeDao.deleteAll();
         userDao.deleteAll();
@@ -91,7 +93,7 @@ class DemoApplicationTests {
 
     @Test
     void pagoOkConsumoCancion() throws Exception {
-        // Simular pago OK en BD
+        // Simular pago OK en BD.
         StripeTransaction tx = new StripeTransaction();
         tx.setId("pi_test_song");
         tx.setData("{}");
@@ -102,7 +104,7 @@ class DemoApplicationTests {
         tx.setUsed(false);
         stripeDao.save(tx);
 
-        // Llamar a /music/add con email y clientId correctos (simula "poner" canción)
+        // Llamar a /music/add con email y clientId correctos (simula "poner" cancion).
         int status = postSong("test@selenium.com", "fake-client-id");
         assertEquals(200, status, "La llamada a /music/add debe completar con pago válido");
 
@@ -119,7 +121,7 @@ class DemoApplicationTests {
     }
 
     private int postSong(String email, String clientId) throws Exception {
-        // Construye y envia la peticion POST a /music/add simulando el front
+        // Construye y envia la peticion POST a /music/add simulando el front.
         HttpURLConnection con = (HttpURLConnection) new URL("http://127.0.0.1:" + port + "/music/add").openConnection();
         con.setConnectTimeout(2000);
         con.setReadTimeout(2000);

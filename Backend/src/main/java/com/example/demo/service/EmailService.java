@@ -8,6 +8,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import java.util.Locale;
 
+/**
+ * Encapsula el envio de correos del flujo de negocio:
+ * registro/confirmacion, reset y recibos de suscripcion.
+ */
 @Service
 public class EmailService {
 
@@ -26,7 +30,7 @@ public class EmailService {
     }
 
     public void sendRegistrationEmail(String to, String token) {
-        // Construye enlaces de confirmacion y pago para nuevos registros
+        // Construye enlaces de confirmacion y pago para nuevos registros.
         String confirmUrl = "http://localhost:8080/users/confirmToken/" + to + "?token=" + token;
         String paymentUrl = frontendHost + "/payment?token=" + token;
 
@@ -56,7 +60,7 @@ public class EmailService {
     }
 
     public void sendResetEmail(String to, String token) {
-        // Genera correo con enlace para restablecer contrasena
+        // Genera correo con enlace para restablecer contrasena.
         String resetUrl = frontendHost + "/reset?token=" + token;
 
         String body = """
@@ -82,7 +86,7 @@ public class EmailService {
     }
 
     public void sendSubscriptionReceipt(String to, String bar, String planCode, Long amountCents) {
-        // Resume el pago de suscripcion y lo envia al correo del bar
+        // Resume el pago de suscripcion y lo envia al correo del bar.
         String planName = switch (planCode) {
             case "subscription_monthly" -> "Suscripcion mensual";
             case "subscription_annual" -> "Suscripcion anual";

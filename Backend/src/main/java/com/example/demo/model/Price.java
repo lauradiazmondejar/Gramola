@@ -3,9 +3,12 @@ package com.example.demo.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
+/**
+ * Entidad de precio configurable en BD.
+ */
 @Entity
 public class Price {
-    // Codigo usado para identificar el tipo de producto
+    // Codigo usado para identificar el tipo de producto.
     @Id
     private String code; // e.g. subscription_monthly, subscription_annual, song
 

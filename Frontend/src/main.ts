@@ -2,6 +2,6 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { App } from './app/app';
 
+// Punto de entrada de la SPA: arranca Angular con rutas y providers.
 bootstrapApplication(App, appConfig)
-  // Arranca la aplicacion Angular con la configuracion principal
   .catch((err) => console.error(err));

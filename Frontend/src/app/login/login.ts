@@ -12,19 +12,20 @@ import { Router } from '@angular/router';
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
+// Login del bar y arranque del OAuth con Spotify.
 export class Login {
   email?: string;
   pwd?: string;
   errorMsg?: string;
   showPwd = false;
 
-  // Datos para la conexion con Spotify (Paso 1 del OAuth). Ajusta redirectUrl igual que en el Dashboard de Spotify.
+  // Datos para la conexion con Spotify (Paso 1 del OAuth). Ajusta redirectUrl igual que en el dashboard de Spotify.
   spoti = {
     authorizeUrl: 'https://accounts.spotify.com/authorize',
     redirectUrl: 'http://127.0.0.1:4200/callback' 
   };
   
-  // Permisos solicitados a Spotify
+  // Permisos solicitados a Spotify.
   scopes = [
     "user-read-private", "user-read-email", "playlist-read-private", 
     "playlist-read-collaborative", "user-read-playback-state", 
@@ -36,7 +37,7 @@ export class Login {
   constructor(private service: UserService, private router: Router) {}
 
   loguear() {
-    // Valida credenciales y almacena datos en sessionStorage
+    // Valida credenciales y almacena datos en sessionStorage.
     if (!this.email || !this.pwd) {
       this.errorMsg = "Rellena todos los campos";
       return;
@@ -48,9 +49,9 @@ export class Login {
         const signature = resp?.signature;
         console.log('Login correcto. Client ID recibido:', clientId);
         
-        // Guardamos el clientId en sesion para usarlo luego
+        // Guardamos el clientId en sesion para usarlo luego.
         sessionStorage.setItem("clientId", clientId);
-        // Guardamos el email del bar logueado para validarlo en /music/add
+        // Guardamos el email del bar logueado para validarlo en /music/add.
         sessionStorage.setItem("email", this.email!);
         if (resp?.bar) {
           sessionStorage.setItem("bar", resp.bar);
@@ -59,7 +60,7 @@ export class Login {
           sessionStorage.setItem('signature', signature);
         }
 
-        // Iniciamos el flujo de Spotify
+        // Iniciamos el flujo de Spotify.
         this.iniciarSpotifyOAuth(clientId);
       },
       error: (err) => {
@@ -70,7 +71,7 @@ export class Login {
   }
 
   iniciarSpotifyOAuth(clientId: string) {
-    // Construye la URL de autorizacion y redirige al login de Spotify
+    // Construye la URL de autorizacion y redirige al login de Spotify.
     const state = this.generateRandomString(16);
     sessionStorage.setItem("oauth_state", state);
 
@@ -82,12 +83,12 @@ export class Login {
       state: state
     });
 
-    // Redirigimos al usuario a Spotify
+    // Redirigimos al usuario a Spotify.
     window.location.href = `${this.spoti.authorizeUrl}?${params.toString()}`;
   }
 
   generateRandomString(length: number) {
-    // Genera el estado aleatorio para proteger el OAuth
+    // Genera el estado aleatorio para proteger el OAuth.
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     for (let i = 0; i < length; i++) {

@@ -6,11 +6,12 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class PaymentService {
+  // Base de la API de pagos del backend.
   private apiUrl = 'http://127.0.0.1:8080/payments';
 
   constructor(private http: HttpClient) {}
 
-  // Prepara un pago tomando el precio desde BD usando un cÇüdigo (song, subscription_monthly, etc.)
+  // Prepara un pago tomando el precio desde BD usando un codigo (song, subscription_monthly, etc.).
   prepay(code: string, email?: string, bar?: string, type: string = 'subscription'): Observable<any> {
     let url = `${this.apiUrl}/prepay?code=${code}&type=${type}`;
     if (email) url += `&email=${encodeURIComponent(email)}`;
@@ -18,9 +19,9 @@ export class PaymentService {
     return this.http.post(url, {}, { responseType: 'text' });
   }
 
-  // Paso 2: Confirmar al backend que el pago se ha realizado
+  // Paso 2: confirmar al backend que el pago se ha realizado.
   confirm(stripeResponse: any, internalId: string, token: string | null): Observable<any> {
-    // Enviamos los datos necesarios para que el backend active la cuenta
+    // Enviamos los datos necesarios para que el backend active la cuenta.
     let info = {
       stripeId: stripeResponse.paymentIntent.id,
       internalId: internalId,
@@ -30,12 +31,12 @@ export class PaymentService {
   }
 
   getPrice(code: string): Observable<any> {
-    // Recupera la informacion de un precio concreto
+    // Recupera la informacion de un precio concreto.
     return this.http.get(`${this.apiUrl}/prices/${code}`);
   }
 
   listPrices(): Observable<any> {
-    // Devuelve todos los precios disponibles para pintar la UI
+    // Devuelve todos los precios disponibles para pintar la UI.
     return this.http.get(`${this.apiUrl}/prices`);
   }
 }

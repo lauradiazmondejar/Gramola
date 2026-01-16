@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './geolocalizacion.html',
   styleUrl: './geolocalizacion.css'
 })
+// Demo de geolocalizacion: ciudad y clima desde servicios externos.
 export class Geolocalizacion {
 
   coordenadas?: GeolocationPosition;
@@ -16,7 +17,7 @@ export class Geolocalizacion {
   ciudad?: string;
 
   constructor() {
-    // Al iniciar el componente, pedimos geolocalizacion y lanzamos las peticiones auxiliares
+    // Al iniciar el componente, pedimos geolocalizacion y lanzamos las peticiones auxiliares.
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -24,7 +25,7 @@ export class Geolocalizacion {
           console.log('Latitud: ' + position.coords.latitude);
           console.log('Longitud: ' + position.coords.longitude);
           
-          // Llamamos a los métodos para rellenar los datos
+          // Llamamos a los metodos para rellenar los datos.
           this.obtenerCiudad();
           this.obtenerClima();
         },
@@ -43,7 +44,7 @@ export class Geolocalizacion {
   }
 
   private obtenerCiudad() {
-    // Invoca Nominatim para traducir lat/lon a ciudad
+    // Invoca Nominatim para traducir lat/lon a ciudad.
     if (this.coordenadas) {
       const lat = this.coordenadas.coords.latitude;
       const lon = this.coordenadas.coords.longitude;
@@ -52,7 +53,7 @@ export class Geolocalizacion {
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          // CORREGIDO: Guardamos el valor en la variable de la clase 'this.ciudad'
+          // Guardamos el valor en la variable de la clase 'this.ciudad'.
           this.ciudad = data.address.city || data.address.town || data.address.village;
           console.log('Ciudad: ' + this.ciudad);
         })
@@ -63,22 +64,22 @@ export class Geolocalizacion {
   }
 
   private obtenerClima() {
-    // Consulta el servicio de clima usando las coordenadas actuales
+    // Consulta el servicio de clima usando las coordenadas actuales.
     if (this.coordenadas) {
-      // CORREGIDO: Definimos lat y lon antes de usarlas
+      // Definimos lat y lon antes de usarlas.
       const lat = this.coordenadas.coords.latitude;
       const lon = this.coordenadas.coords.longitude;
       
       let apiKey = 'MFJABWDHQPXK3ADVFF36XZ65X'; 
       let url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${lon}?unitGroup=metric&key=${apiKey}&contentType=json`;
       
-      // CORREGIDO: Usamos fetch en lugar de XMLHttpRequest para evitar problemas con 'this'
+      // Usamos fetch en lugar de XMLHttpRequest para evitar problemas con 'this'.
       fetch(url)
         .then(response => response.json())
         .then(data => {
           this.temperaturaMAX = data.days[0].tempmax;
           this.temperaturaMIN = data.days[0].tempmin;
-          // Usamos this.ciudad (puede que aún no haya cargado porque es asíncrono, pero no dará error de compilación)
+          // Usamos this.ciudad (puede que aun no haya cargado porque es asincrono).
           console.log("Temperaturas: Max " + this.temperaturaMAX + " Min " + this.temperaturaMIN);
         })
         .catch(error => {

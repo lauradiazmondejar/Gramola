@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 
+/**
+ * Cifrado simetrico de secretos (clientSecret) con AES/GCM.
+ * Mantiene los datos sensibles fuera de texto plano en la BD.
+ */
 @Service
 public class SecretEncryptionService {
 
@@ -21,7 +25,7 @@ public class SecretEncryptionService {
 
     @PostConstruct
     public void init() {
-        // Prepara la clave simetrica de 32 bytes para AES-256 rellenando con ceros si falta
+        // Prepara la clave simetrica de 32 bytes para AES-256 rellenando con ceros si falta.
         byte[] keyBytes = new byte[32];
         byte[] src = secretKeyConfig.getBytes(StandardCharsets.UTF_8);
         System.arraycopy(src, 0, keyBytes, 0, Math.min(src.length, keyBytes.length));
@@ -33,7 +37,7 @@ public class SecretEncryptionService {
             return plain;
         }
         try {
-            // Genera IV aleatorio y encripta usando AES/GCM
+            // Genera IV aleatorio y encripta usando AES/GCM.
             byte[] iv = new byte[12];
             random.nextBytes(iv);
 
@@ -47,7 +51,7 @@ public class SecretEncryptionService {
             buffer.put(encrypted);
             return Base64.getEncoder().encodeToString(buffer.array());
         } catch (Exception e) {
-            // En caso de error devolvemos el valor en claro para no bloquear el flujo
+            // En caso de error devolvemos el valor en claro para no bloquear el flujo.
             return plain;
         }
     }
@@ -59,7 +63,7 @@ public class SecretEncryptionService {
         try {
             byte[] data = Base64.getDecoder().decode(encrypted);
             if (data.length < 13) {
-                return encrypted; // Not a valid payload
+                return encrypted; // Not a valid payload.
             }
             byte[] iv = new byte[12];
             byte[] cipherText = new byte[data.length - 12];

@@ -21,6 +21,10 @@ import com.stripe.param.PaymentIntentCreateParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Integracion con Stripe y gestion de pagos/suscripciones.
+ * Los importes se consultan desde BD (requisito del enunciado).
+ */
 @Service
 public class PaymentService {
 
@@ -46,7 +50,7 @@ public class PaymentService {
 
     @PostConstruct
     public void initStripe() {
-        // Configura la API de Stripe con la clave cargada desde propiedades
+        // Configura la API de Stripe con la clave cargada desde propiedades.
         if (stripeSecretKey == null || stripeSecretKey.isBlank()) {
             log.warn("Stripe secret key is not configured (stripe.secret-key). Payments will fail.");
         } else {
@@ -55,7 +59,7 @@ public class PaymentService {
     }
 
     public Price getPrice(String code) {
-        // Busca el precio solicitado o lanza error si no existe
+        // Busca el precio solicitado o lanza error si no existe.
         return priceDao.findById(code)
                 .orElseThrow(() -> new IllegalArgumentException("Price code not found: " + code));
     }
@@ -65,12 +69,12 @@ public class PaymentService {
     }
 
     public boolean hasValidSongPayment(String email) {
-        // Comprueba si queda un pago de cancion pendiente de usar
+        // Comprueba si queda un pago de cancion pendiente de usar.
         return stripeDao.findFirstByEmailAndPriceCodeAndUsedFalse(email, "song").isPresent();
     }
 
     public StripeTransaction consumeSongPayment(String email) {
-        // Busca un pago de cancion sin usar y lo marca como consumido
+        // Busca un pago de cancion sin usar y lo marca como consumido.
         StripeTransaction tx = stripeDao.findFirstByEmailAndPriceCodeAndUsedFalse(email, "song")
                 .orElseThrow(() -> new IllegalArgumentException("No hay pago de canción disponible para " + email));
         tx.setUsed(true);
@@ -79,7 +83,7 @@ public class PaymentService {
     }
 
     public String prepay(String priceCode, String email, String bar, String type) throws StripeException {
-        // Obtiene el precio elegido por el usuario
+        // Obtiene el precio elegido por el usuario.
         Price price = getPrice(priceCode);
 
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
@@ -92,7 +96,7 @@ public class PaymentService {
 
         PaymentIntent intent = PaymentIntent.create(params);
 
-        // Persistimos la transaccion para compararla cuando Stripe confirme
+        // Persistimos la transaccion para compararla cuando Stripe confirme.
         StripeTransaction transaction = new StripeTransaction();
         transaction.setId(intent.getId());
         transaction.setData(intent.toJson());
@@ -111,14 +115,14 @@ public class PaymentService {
             throw new IllegalArgumentException("Missing payment confirmation data");
         }
 
-        // Asegurarnos de que el pago que vuelve es el mismo que preparamos
+        // Asegurarnos de que el pago que vuelve es el mismo que preparamos.
         StripeTransaction transaction = stripeDao.findById(internalId)
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not registered"));
         if (!stripeId.equals(transaction.getId())) {
             throw new IllegalArgumentException("Stripe identifiers do not match");
         }
 
-        // Verificar en Stripe que el pago termino OK
+        // Verificar en Stripe que el pago termino OK.
         PaymentIntent intent = PaymentIntent.retrieve(stripeId);
         if (!"succeeded".equalsIgnoreCase(intent.getStatus())) {
             throw new IllegalArgumentException("Payment not completed in Stripe");
@@ -129,7 +133,7 @@ public class PaymentService {
             throw new IllegalArgumentException("Payment amount mismatch");
         }
 
-        // Si es suscripcion: token obligatorio y marcamos pagado
+        // Si es suscripcion: token obligatorio y marcamos pagado.
         if ("subscription_monthly".equals(transaction.getPriceCode()) || "subscription_annual".equals(transaction.getPriceCode())) {
             if (token == null) {
                 throw new IllegalArgumentException("Missing token for subscription confirmation");

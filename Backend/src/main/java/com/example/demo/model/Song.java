@@ -8,29 +8,32 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 
+/**
+ * Entidad de cancion solicitada por clientes del bar.
+ */
 @Entity
 public class Song {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Datos principales de la cancion solicitada
+    // Datos principales de la cancion solicitada.
     private String title;
     private String artist;
     private String uri; // El identificador de Spotify (spotify:track:...)
     
     private Date date;
 
-    // Relación con el Bar (User)
+    // Relacion con el Bar (User).
     @ManyToOne
     private User bar;
 
     @PrePersist
     protected void onCreate() {
-        date = new Date(); // Se guarda la fecha actual automáticamente
+        date = new Date(); // Se guarda la fecha actual automaticamente.
     }
 
-    // Getters y Setters
+    // Getters y Setters.
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     

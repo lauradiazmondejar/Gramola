@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.model.SpotiToken;
 import com.example.demo.service.SpotiService;
 
+/**
+ * API puente con Spotify para el intercambio de code -> access token.
+ */
 @RestController
 @RequestMapping("spoti")
 @CrossOrigin(origins = {"http://127.0.0.1:4200"}) // Front solo en 127.0.0.1
@@ -20,7 +23,7 @@ public class SpotiController {
 
     @GetMapping("/getAuthorizationToken")
     public SpotiToken getAuthorizationToken(@RequestParam String code, @RequestParam String clientId) {
-        // Intercambia el codigo de Spotify por un token de acceso/refresh
+        // Intercambia el codigo de Spotify por un token de acceso/refresh.
         return spotiService.getAuthorizationToken(code, clientId);
     }
 }

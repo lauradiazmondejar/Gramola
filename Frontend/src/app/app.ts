@@ -5,9 +5,9 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html',
-  // estilos globales en src/styles.css
+  // Estilos globales en src/styles.css.
 })
 export class App {
-  // Signal usado para exponer el titulo de la aplicacion
+  // Signal usado para exponer el titulo de la aplicacion.
   protected readonly title = signal('frontend');
 }
