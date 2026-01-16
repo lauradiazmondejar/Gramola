@@ -1,10 +1,10 @@
-# LauraWEB
+# GRAMOLA - TECNOLOGÍAS Y SISTEMAS WEB
 
-Repositorio con backend Spring Boot y frontend Angular para la gramola.
+Repositorio de Laura Díaz Mondéjar para el laboratorio de Tenologías y Sistemas Web 2025/2026.
 
 ## Estructura
-- Backend/  API REST y servicios (Spring Boot)
-- Frontend/ UI (Angular)
+- Backend/ (Spring Boot)
+- Frontend/ (Angular)
 
 ## Requisitos
 - Java 17+
@@ -18,8 +18,6 @@ Repositorio con backend Spring Boot y frontend Angular para la gramola.
 - MAILTRAP_USER
 - MAILTRAP_PASS
 - STRIPE_SECRET_KEY
-- APP_CRYPTO_KEY (32 bytes, para cifrar clientSecret de Spotify)
-- Opcional: APP_FRONTEND_HOST (si el front no esta en 127.0.0.1:4200)
 
 ## Ejecutar backend
 Desde otra terminal (se usan variables de entorno):
@@ -29,7 +27,6 @@ cd Backend
 $env:MAILTRAP_USER="TU_USER"
 $env:MAILTRAP_PASS="TU_PASS"
 $env:STRIPE_SECRET_KEY="sk_test_..."
-$env:APP_CRYPTO_KEY="change-me-please-change-me-32bytes"
 mvn spring-boot:run
 ```
 
