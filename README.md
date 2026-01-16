@@ -8,11 +8,11 @@ Repositorio de Laura Díaz Mondéjar para el laboratorio de Tenologías y Sistem
 
 ## Requisitos
 - Java 17+
-- Maven 3.x (o mvnw)
+- Maven 3.x
 - Node.js 18+ y npm
-- MySQL 8 (o ajustar a H2 si no hay MySQL)
-- Credenciales SMTP (Mailtrap u otro)
-- Stripe (clave secreta de test)
+- MySQL 8
+- Credenciales SMTP (Mailtrap)
+- Stripe
 
 ## Variables de entorno
 - MAILTRAP_USER
@@ -36,6 +36,24 @@ mvn spring-boot:run
 cd Frontend
 npm install
 ng serve --host 127.0.0.1 --port 4200
+```
+
+## Ejecutar tests Selenium
+
+Requisitos: frontend activo en `http://127.0.0.1:4200` y Chrome disponible.  
+Importante: el backend **no** debe estar levantado; los tests lo arrancan internamente.  
+Los tests estan desactivados por defecto y se habilitan por flag:
+
+```powershell
+cd Backend
+mvn test -DrunSeleniumTests=true
+```
+
+Para los tests UI de Stripe (suscripcion) se requiere `STRIPE_SECRET_KEY` y backend en 8080:
+
+```powershell
+cd Backend
+mvn test -DrunUiStripeTests=true -Dserver.port=8080
 ```
 
 ## Notas
