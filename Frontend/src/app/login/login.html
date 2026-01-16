@@ -13,13 +13,13 @@
       <!-- Formulario de acceso y toggle de visibilidad de contrasena -->
       <div class="input-group">
         <label>Email</label>
-        <input type="email" [(ngModel)]="email" name="email" placeholder="correo@ejemplo.com">
+        <input type="email" [(ngModel)]="email" name="email" placeholder="">
       </div>
 
       <div class="input-group">
         <label>Contraseña</label>
         <div style="display:flex; gap:8px; align-items:center;">
-          <input [type]="showPwd ? 'text' : 'password'" [(ngModel)]="pwd" name="password" placeholder="••••••••" style="flex:1">
+          <input [type]="showPwd ? 'text' : 'password'" [(ngModel)]="pwd" name="password" placeholder="" style="flex:1">
           <button type="button" class="btn btn-ghost" (click)="showPwd = !showPwd">
             <ng-container *ngIf="!showPwd; else iconOffLogin">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

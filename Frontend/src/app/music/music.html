@@ -144,4 +144,14 @@
   </div>
 </div>
 
+<div class="modal-overlay" *ngIf="mostrandoModalUbicacion">
+  <div class="modal-content">
+    <h3>{{ tituloModalUbicacion }}</h3>
+    <p class="muted">{{ mensajeModalUbicacion }}</p>
+
+    <div class="modal-actions">
+      <button class="btn-pay" (click)="cerrarModalUbicacion()">Entendido</button>
+    </div>
+  </div>
+</div>
 

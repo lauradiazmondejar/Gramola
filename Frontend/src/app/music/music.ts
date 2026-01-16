@@ -47,6 +47,9 @@ export class Music implements OnInit {
   playlistPassword = '';
   playlistError = '';
   verificandoPlaylist = false;
+  mostrandoModalUbicacion = false;
+  tituloModalUbicacion = 'Ubicacion requerida';
+  mensajeModalUbicacion = '';
 
   constructor(
     private spotiService: SpotiService,
@@ -213,6 +216,17 @@ export class Music implements OnInit {
     this.playlistPassword = '';
     this.playlistError = '';
     this.verificandoPlaylist = false;
+  }
+
+  abrirModalUbicacion(mensaje: string, titulo: string = 'Ubicacion requerida') {
+    this.tituloModalUbicacion = titulo;
+    this.mensajeModalUbicacion = mensaje;
+    this.mostrandoModalUbicacion = true;
+  }
+
+  cerrarModalUbicacion() {
+    this.mostrandoModalUbicacion = false;
+    this.mensajeModalUbicacion = '';
   }
   private iniciarReproduccionPlaylist(list: any) {
     this.spotiService.startPlaylist(list.uri, this.currentDevice.id).subscribe({
@@ -479,9 +493,9 @@ export class Music implements OnInit {
                 console.error('Error guardando en BD', e);
                 if (onError) { onError(e); }
                 if (e.status === 403) {
-                    alert('Estas demasiado lejos del bar.');
+                    this.abrirModalUbicacion('Estas demasiado lejos del bar.');
                 } else if (e.status === 400) {
-                    alert('Hace falta tu ubicacion para pedir musica en este bar.');
+                    this.abrirModalUbicacion('Hace falta tu ubicacion para pedir musica en este bar.');
                 }
             }
         });
