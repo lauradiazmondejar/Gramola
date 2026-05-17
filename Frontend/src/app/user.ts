@@ -2,18 +2,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   // Base de la API del backend para cuentas de bar.
-  private apiUrl = 'http://127.0.0.1:8080/users/register';
+  private apiUrl = `${environment.backendUrl}/users/register`;
 
   constructor(private http: HttpClient) {}
 
   // Registro completo del bar (incluye datos de Spotify y firma).
-  register(bar: string, email: string, pwd1: string, pwd2: string, clientId: string, clientSecret: string, lat?: number, lon?: number, signature?: string) {
+  register(bar: string, email: string, pwd1: string, pwd2: string, clientId: string, clientSecret: string, lat?: number, lon?: number, signature?: string, songPriceCents?: number) {
     // Construye el cuerpo de registro y lo envia al backend.
     let info = {
       bar: bar,
@@ -24,8 +25,8 @@ export class UserService {
       clientSecret: clientSecret,
       lat: lat,
       lon: lon,
-      signature: signature
-      
+      signature: signature,
+      songPriceCents: songPriceCents
     }
     return this.http.post<any>(this.apiUrl, info);
   }

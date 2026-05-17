@@ -32,7 +32,7 @@ public class UserService {
     @Autowired
     private SecretEncryptionService encryptionService;
 
-    public String register(String bar, String email, String pwd, String clientId, String clientSecret, Double lat, Double lon, String signature) {
+    public String register(String bar, String email, String pwd, String clientId, String clientSecret, Double lat, Double lon, String signature, Long songPriceCents) {
         // Alta de bar: validamos si existe y regeneramos token si estaba pendiente.
         Optional<User> optUser = userDao.findById(email);
 
@@ -63,6 +63,7 @@ public class UserService {
         user.setLatitude(lat);
         user.setLongitude(lon);
         user.setSignature(signature);
+        user.setSongPriceCents(songPriceCents);
         user.setPaid(false);
 
         userDao.save(user);

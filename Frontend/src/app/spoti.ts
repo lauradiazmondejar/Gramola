@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SpotiService {
   // Endpoints: backend para token y Spotify Web API para el resto.
-  private apiUrl = 'http://127.0.0.1:8080/spoti';
+  private apiUrl = `${environment.backendUrl}/spoti`;
   private spotifyApiUrl = 'https://api.spotify.com/v1';
 
   constructor(private http: HttpClient) {}
@@ -42,9 +43,9 @@ export class SpotiService {
   }
 
   search(q: string): Observable<any> {
-    // Busca canciones por texto.
-    const headers = this.getHeaders();
-    return this.http.get(`${this.spotifyApiUrl}/search?q=${q}&type=track`, { headers });
+    // El front le pregunta al back, y el back le pregunta a Spotify
+    const token = sessionStorage.getItem('spoti_token') || '';
+    return this.http.get(`${this.apiUrl}/search?q=${encodeURIComponent(q)}&token=${encodeURIComponent(token)}`);
   }
 
   addToQueue(uri: string, deviceId: string): Observable<any> {
@@ -67,6 +68,13 @@ export class SpotiService {
     const headers = this.getHeaders();
     const url = `${this.spotifyApiUrl}/me/player/play?device_id=${deviceId}`;
     return this.http.put(url, { context_uri: playlistUri }, { headers });
+  }
+
+  startTracks(uris: string[], deviceId: string): Observable<any> {
+    // Reproduce una lista de URIs de canciones directamente 
+    const headers = this.getHeaders();
+    const url = `${this.spotifyApiUrl}/me/player/play?device_id=${deviceId}`;
+    return this.http.put(url, { uris }, { headers });
   }
 
   resumePlayback(deviceId: string): Observable<any> {

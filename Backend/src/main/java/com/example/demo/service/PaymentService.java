@@ -64,6 +64,21 @@ public class PaymentService {
                 .orElseThrow(() -> new IllegalArgumentException("Price code not found: " + code));
     }
 
+    public Price getSongPriceForBar(String email) {
+        // Devuelve el precio de cancion personalizado del bar o el global si no tiene
+        if (email != null) {
+            User bar = userDao.findById(email).orElse(null);
+            if (bar != null && bar.getSongPriceCents() != null) {
+                Price custom = new Price();
+                custom.setCode("song");
+                custom.setDescription("Cancion individual");
+                custom.setAmount(bar.getSongPriceCents());
+                return custom;
+            }
+        }
+        return getPrice("song");
+    }
+
     public java.util.List<Price> listPrices() {
         return priceDao.findAll();
     }
@@ -83,8 +98,8 @@ public class PaymentService {
     }
 
     public String prepay(String priceCode, String email, String bar, String type) throws StripeException {
-        // Obtiene el precio elegido por el usuario.
-        Price price = getPrice(priceCode);
+        // Obtiene el precio: personalizado por bar si es cancion, global en otro caso
+        Price price = "song".equals(priceCode) ? getSongPriceForBar(email) : getPrice(priceCode);
 
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                 .setCurrency("eur")

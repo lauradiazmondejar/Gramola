@@ -29,15 +29,36 @@
           <strong>{{ track.name }}</strong>
           <span>{{ track.artists[0].name }}</span>
         </div>
-        <button class="btn btn-secondary" (click)="solicitarCancion(track)">
-          Poner ({{ songPriceCents != null ? (songPriceCents / 100) : '?' }} €)
-        </button>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost" (click)="agregarAlCatalogo(track)">
+            Añadir al catálogo (gratis)
+          </button>
+          <button class="btn btn-secondary" (click)="solicitarCancion(track)">
+            Poner ({{ songPriceCents != null ? (songPriceCents / 100) : '?' }} €)
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
   <div *ngIf="successMsg" class="msg success">{{ successMsg }}</div>
   <div *ngIf="errorMsg" class="msg error">{{ errorMsg }}</div>
+
+  <div class="card">
+    <div class="section-title">
+      <h3>Catálogo del bar</h3>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost" (click)="cargarCatalogoBar()">Recargar</button>
+        <button class="btn btn-secondary" *ngIf="catalogoBar.length > 0 && currentDevice" (click)="reproducirCatalogo()">Reproducir catálogo</button>
+      </div>
+    </div>
+    <p class="muted" *ngIf="catalogoBar.length === 0">Sin canciones en el catálogo todavía. Busca y añade gratis.</p>
+    <ul class="queue-list">
+      <li class="queue-item" *ngFor="let song of catalogoBar">
+        {{ song.name }} - {{ song.artists[0].name }}
+      </li>
+    </ul>
+  </div>
 
   <div class="card">
     <div class="section-title">
@@ -103,6 +124,27 @@
         {{ item.name }} - {{ item.artists?.[0]?.name }}
       </li>
     </ul>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="confirmandoCatalogo">
+  <div class="modal-content">
+    <h3>Verificación de propietario</h3>
+    <p class="muted">Introduce la contraseña del bar para añadir: <strong>{{ trackParaCatalogo?.name }}</strong></p>
+
+    <div class="auth-box">
+      <label for="catalogo-pass">Contraseña</label>
+      <input id="catalogo-pass" type="password" [(ngModel)]="catalogoPassword" placeholder="Contraseña del bar" (keyup.enter)="confirmarAgregarAlCatalogo()">
+    </div>
+
+    <div *ngIf="catalogoError" class="msg error">{{ catalogoError }}</div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="cancelarAgregarAlCatalogo()" [disabled]="verificandoCatalogo">Cancelar</button>
+      <button class="btn-pay" (click)="confirmarAgregarAlCatalogo()" [disabled]="verificandoCatalogo">
+        {{ verificandoCatalogo ? 'Verificando...' : 'Añadir al catálogo' }}
+      </button>
+    </div>
   </div>
 </div>
 

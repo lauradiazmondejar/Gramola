@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.example.demo.service.ConfigService;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,9 @@ public class UserController {
 
     @Autowired
     private UserService service;
+
+    @Autowired
+    private ConfigService configService;
     
     @PostMapping("/register")
     public void register(@RequestBody Map<String, Object> body) {
@@ -41,6 +45,8 @@ public class UserController {
         Double lat = body.get("lat") != null ? Double.valueOf(body.get("lat").toString()) : null;
         Double lon = body.get("lon") != null ? Double.valueOf(body.get("lon").toString()) : null;
         String signature = (String) body.get("signature");
+        Long songPriceCents = body.get("songPriceCents") != null
+                ? Long.valueOf(body.get("songPriceCents").toString()) : null;
 
         // 2. Validamos reglas basicas (las reglas de negocio reales viven en el servicio).
         if (pwd1 == null || !pwd1.equals(pwd2)) {
@@ -58,7 +64,7 @@ public class UserController {
         // (Se pueden anadir validaciones extra para bar, clientId, etc.)
 
         // 3. Delegamos en el servicio para persistir y enviar correo de confirmacion.
-        this.service.register(bar, email, pwd1, clientId, clientSecret, lat, lon, signature);
+        this.service.register(bar, email, pwd1, clientId, clientSecret, lat, lon, signature, songPriceCents);
     }
 
     @DeleteMapping("/delete")
@@ -71,7 +77,7 @@ public class UserController {
     public void confirmToken(@PathVariable String email, @RequestParam String token, HttpServletResponse response) throws IOException {
         // Valida el token y redirige al flujo de pago en el front.
         this.service.confirmToken(email, token);
-        response.sendRedirect("http://127.0.0.1:4200/payment?token=" + token);
+        response.sendRedirect(configService.getValue("app.frontend.url") + "/payment?token=" + token);
     }
 
     // Devolvemos un JSON compacto con los datos necesarios para el OAuth de Spotify.

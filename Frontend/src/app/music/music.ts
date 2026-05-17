@@ -5,6 +5,7 @@ import { SpotiService } from '../spoti';
 import { HttpClient } from '@angular/common/http';
 import { PaymentService } from '../payment';
 import { UserService } from '../user';
+import { environment } from '../../environments/environment';
 
 declare let Stripe: any;
 
@@ -20,6 +21,7 @@ export class Music implements OnInit {
 
   devices: any[] = [];
   playlists: any[] = [];
+  catalogoBar: any[] = [];
   queue: any[] = [];
   nowPlaying: any;
   tracks: any[] = [];
@@ -32,7 +34,7 @@ export class Music implements OnInit {
   currentPlaylistTracks: any[] = [];
   isPlaying = false;
   simulatePlayback = true; // Fallback sin Premium.
-  backendBase = 'http://127.0.0.1:8080';
+  backendBase = environment.backendUrl;
 
   stripe = Stripe('pk_test_51SIV2CRfAGkgoJHtjzPD344TigvazTauIQXxhm98Tk78mAuc7H79dD9XWvSO8cIfKNG8DS5MvEw5ldw6LhfUuEsg00QDV18Afz');
   elements: any;
@@ -47,6 +49,11 @@ export class Music implements OnInit {
   playlistPassword = '';
   playlistError = '';
   verificandoPlaylist = false;
+  confirmandoCatalogo = false;
+  trackParaCatalogo: any = null;
+  catalogoPassword = '';
+  catalogoError = '';
+  verificandoCatalogo = false;
   mostrandoModalUbicacion = false;
   tituloModalUbicacion = 'Ubicacion requerida';
   mensajeModalUbicacion = '';
@@ -59,8 +66,9 @@ export class Music implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Carga datos iniciales de Spotify y precios al entrar en la vista.
+    // Carga datos iniciales: catalogo del bar desde el backend, Spotify y precios
     this.userSignature = sessionStorage.getItem('signature') || '';
+    this.cargarCatalogoBar();
     this.cargarDispositivos();
     this.cargarPlaylists();
     this.cargarCola();
@@ -71,6 +79,76 @@ export class Music implements OnInit {
   logout() {
     sessionStorage.clear();
     window.location.href = '/login';
+  }
+
+  cargarCatalogoBar() {
+    // Carga la lista de canciones del bar desde el backend
+    const email = sessionStorage.getItem('email');
+    if (!email) return;
+    this.http.get<any[]>(`${this.backendBase}/music/queue?email=${encodeURIComponent(email)}`).subscribe({
+      next: (songs) => {
+        this.catalogoBar = songs.map((s: any) => ({
+          name: s.title,
+          artists: [{ name: s.artist }],
+          uri: s.uri
+        }));
+      },
+      error: (err) => console.error('No se pudo cargar el catálogo del bar', err)
+    });
+  }
+
+  agregarAlCatalogo(track: any) {
+    // Abre el modal de verificación; si el propietario confirma, la cancion se añade gratis
+    this.trackParaCatalogo = track;
+    this.catalogoPassword = '';
+    this.catalogoError = '';
+    this.confirmandoCatalogo = true;
+  }
+
+  confirmarAgregarAlCatalogo() {
+    if (!this.catalogoPassword) {
+      this.catalogoError = 'Introduce la contraseña del bar.';
+      return;
+    }
+    const email = sessionStorage.getItem('email');
+    const clientId = sessionStorage.getItem('clientId');
+    if (!email || !clientId) {
+      this.catalogoError = 'Sesión inválida. Vuelve a iniciar sesión.';
+      return;
+    }
+    this.verificandoCatalogo = true;
+    this.catalogoError = '';
+    const body = {
+      title: this.trackParaCatalogo.name,
+      artist: this.trackParaCatalogo.artists[0].name,
+      uri: this.trackParaCatalogo.uri,
+      email: email,
+      clientId: clientId,
+      password: this.catalogoPassword
+    };
+    this.http.post(`${this.backendBase}/music/add-free`, body).subscribe({
+      next: () => {
+        this.verificandoCatalogo = false;
+        this.confirmandoCatalogo = false;
+        this.successMsg = `"${this.trackParaCatalogo.name}" añadida al catálogo del bar.`;
+        this.trackParaCatalogo = null;
+        this.catalogoPassword = '';
+        setTimeout(() => this.successMsg = '', 3000);
+        this.cargarCatalogoBar();
+      },
+      error: (err) => {
+        this.verificandoCatalogo = false;
+        this.catalogoError = err?.error?.message || 'Contraseña incorrecta o error al añadir.';
+      }
+    });
+  }
+
+  cancelarAgregarAlCatalogo() {
+    this.confirmandoCatalogo = false;
+    this.trackParaCatalogo = null;
+    this.catalogoPassword = '';
+    this.catalogoError = '';
+    this.verificandoCatalogo = false;
   }
 
   cargarDispositivos() {
@@ -174,6 +252,22 @@ export class Music implements OnInit {
     this.confirmandoPlaylist = true;
   }
 
+  reproducirCatalogo() {
+    if (!this.currentDevice) {
+      this.errorMsg = 'No hay ningún dispositivo activo.';
+      return;
+    }
+    if (this.catalogoBar.length === 0) {
+      this.errorMsg = 'El catálogo está vacío. Añade canciones primero.';
+      return;
+    }
+    // Reutiliza el modal de verificación de playlists marcando que es el catalogo
+    this.playlistObjetivo = { name: 'Catálogo del bar', esCatalogo: true };
+    this.playlistPassword = '';
+    this.playlistError = '';
+    this.confirmandoPlaylist = true;
+  }
+
   confirmarReproduccionPlaylist() {
     if (!this.playlistObjetivo) {
       this.playlistError = 'No hay playlist seleccionada.';
@@ -200,7 +294,11 @@ export class Music implements OnInit {
         this.confirmandoPlaylist = false;
         this.playlistObjetivo = null;
         this.playlistPassword = '';
-        this.iniciarReproduccionPlaylist(list);
+        if (list?.esCatalogo) {
+          this.iniciarReproduccionCatalogo();
+        } else {
+          this.iniciarReproduccionPlaylist(list);
+        }
       },
       error: (err) => {
         console.error(err);
@@ -246,6 +344,29 @@ export class Music implements OnInit {
     });
   }
 
+  private iniciarReproduccionCatalogo() {
+    const uris = this.catalogoBar.map((s: any) => s.uri).filter(Boolean);
+    if (uris.length === 0) {
+      this.errorMsg = 'No hay canciones válidas en el catálogo para reproducir.';
+      return;
+    }
+    this.spotiService.startTracks(uris, this.currentDevice.id).subscribe({
+      next: () => {
+        this.currentPlaylistName = 'Catálogo del bar';
+        this.currentPlaylistTracks = [...this.catalogoBar];
+        this.isPlaying = true;
+        setTimeout(() => {
+          this.cargarPlaybackActual();
+          this.cargarCola();
+        }, 400);
+      },
+      error: (err) => {
+        console.error(err);
+        this.errorMsg = 'Spotify no pudo reproducir el catálogo (verifica cuenta Premium y permisos).';
+      }
+    });
+  }
+
   reanudarReproduccion() {
     // Reanuda la reproduccion en Spotify si estaba pausada.
     if (!this.currentDevice) {
@@ -266,8 +387,9 @@ export class Music implements OnInit {
   }
 
   cargarPrecioCancion() {
-    // Consulta al backend el precio de una cancion individual.
-    this.paymentService.getPrice('song').subscribe({
+    // Consulta el precio de cancion del bar
+    const email = sessionStorage.getItem('email') || undefined;
+    this.paymentService.getPrice('song', email).subscribe({
       next: (price: any) => {
         this.songPriceCents = price.amount;
       },
@@ -484,7 +606,7 @@ export class Music implements OnInit {
             lon: lon
         };
 
-        this.http.post('http://127.0.0.1:8080/music/add', body).subscribe({
+        this.http.post(`${this.backendBase}/music/add`, body).subscribe({
             next: () => {
                 console.log('Cancion validada en backend.');
                 if (onOk) { onOk(); }

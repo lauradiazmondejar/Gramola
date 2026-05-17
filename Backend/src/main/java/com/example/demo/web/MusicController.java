@@ -41,6 +41,19 @@ public class MusicController {
         this.musicService.addSong(title, artist, uri, email, clientId, userLat, userLon);
     }
 
+    @PostMapping("/add-free")
+    public void addFree(@RequestBody Map<String, Object> body) {
+        // El propietario añade canciones al catalogo del bar sin coste
+        // La contraseña es obligatoria para evitar que los clientes añadan gratis desde el kiosco
+        String title = (String) body.get("title");
+        String artist = (String) body.get("artist");
+        String uri = (String) body.get("uri");
+        String email = (String) body.get("email");
+        String clientId = (String) body.get("clientId");
+        String password = (String) body.get("password");
+        this.musicService.addSongFree(title, artist, uri, email, clientId, password);
+    }
+
     @GetMapping("/health")
     public String health() {
         return "ok";

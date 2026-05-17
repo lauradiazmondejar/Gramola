@@ -90,7 +90,7 @@ class UiSubscriptionSeleniumTests {
     @Test
     void pagoSuscripcionOkMarcaPagado() throws Exception {
         String email = "ui-stripe-ok@test.com";
-        String token = userService.register("Bar UI OK", email, "12345678", "client-id", "client-secret", null, null, null);
+        String token = userService.register("Bar UI OK", email, "12345678", "client-id", "client-secret", null, null, null, null);
 
         abrirPaginaPago(token);
         iniciarPago();
@@ -107,7 +107,7 @@ class UiSubscriptionSeleniumTests {
     @Test
     void pagoSuscripcionKoNoMarcaPagado() throws Exception {
         String email = "ui-stripe-ko@test.com";
-        String token = userService.register("Bar UI KO", email, "12345678", "client-id", "client-secret", null, null, null);
+        String token = userService.register("Bar UI KO", email, "12345678", "client-id", "client-secret", null, null, null, null);
 
         abrirPaginaPago(token);
         iniciarPago();

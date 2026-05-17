@@ -61,9 +61,13 @@ public class PaymentController {
     }
 
     @GetMapping("/prices/{code}")
-    public com.example.demo.model.Price getPrice(@PathVariable String code) {
+    public com.example.demo.model.Price getPrice(@PathVariable String code,
+            @RequestParam(required = false) String email) {
         try {
-            // Recupera un precio especifico para mostrarlo en el front.
+            // Si piden el precio de cancion con email de bar, devuelve el precio personalizado
+            if ("song".equals(code) && email != null) {
+                return paymentService.getSongPriceForBar(email);
+            }
             return paymentService.getPrice(code);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());

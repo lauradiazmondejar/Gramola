@@ -10,6 +10,6 @@ import java.util.List;
  */
 @Repository
 public interface SongDao extends JpaRepository<Song, Long> {
-    // Devuelve la cola de canciones de un bar ordenada por fecha.
-    List<Song> findByBar_EmailOrderByDateAsc(String email);
+    // Canciones de pago (priority=true) primero, luego catalogo por fecha
+    List<Song> findByBar_EmailOrderByPriorityDescDateAsc(String email);
 }

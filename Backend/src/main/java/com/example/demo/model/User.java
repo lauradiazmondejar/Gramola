@@ -41,6 +41,9 @@ public class User {
     // Indica si el bar ya pago la suscripcion.
     private boolean paid = false;
 
+    // Precio personalizado de cancion en centimos (null = usar precio global)
+    private Long songPriceCents;
+
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
@@ -84,5 +87,13 @@ public class User {
 
     public void setPaid(boolean paid) {
         this.paid = paid;
+    }
+
+    public Long getSongPriceCents() {
+        return songPriceCents;
+    }
+
+    public void setSongPriceCents(Long songPriceCents) {
+        this.songPriceCents = songPriceCents;
     }
 }

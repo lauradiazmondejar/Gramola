@@ -21,6 +21,7 @@ export class Register implements AfterViewInit {
   clientSecret?: string;
   lat?: number;
   lon?: number;
+  songPrice?: number;
   ubicacionMsg = '';
   address = '';
   errorMsg?: string;
@@ -75,6 +76,8 @@ export class Register implements AfterViewInit {
       return;
     }
 
+    const songPriceCents = this.songPrice != null ? Math.round(this.songPrice * 100) : undefined;
+
     this.service.register(
       this.bar!,
       this.email!,
@@ -84,7 +87,8 @@ export class Register implements AfterViewInit {
       this.clientSecret!,
       this.lat,
       this.lon,
-      signatureImage
+      signatureImage,
+      songPriceCents
     ).subscribe({
       next: (response) => {
         console.log('Registro exitoso', response);
