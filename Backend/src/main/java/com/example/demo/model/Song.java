@@ -21,7 +21,10 @@ public class Song {
     private String title;
     private String artist;
     private String uri; // El identificador de Spotify (spotify:track:...)
-    
+
+    // true = cancion pagada (se cuela, sube al principio de la cola)
+    private boolean priority = false;
+
     private Date date;
 
     // Relacion con el Bar (User).
@@ -49,6 +52,9 @@ public class Song {
     public Date getDate() { return date; }
     public void setDate(Date date) { this.date = date; }
     
+    public boolean isPriority() { return priority; }
+    public void setPriority(boolean priority) { this.priority = priority; }
+
     public User getBar() { return bar; }
     public void setBar(User bar) { this.bar = bar; }
 }

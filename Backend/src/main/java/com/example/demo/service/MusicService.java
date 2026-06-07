@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,12 +42,6 @@ public class MusicService {
         if (clientId == null || clientId.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ClientId vacío en la petición");
         }
-        // Consumimos un pago de cancion si hay.
-        try {
-            paymentService.consumeSongPayment(email);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED, "Pago de canción no validado");
-        }
 
         // Buscar al bar dueno de la sesion por email.
         User bar = userDao.findById(email)
@@ -59,13 +54,12 @@ public class MusicService {
 
         if (bar.getLatitude() != null && bar.getLongitude() != null) {
             // Si el bar tiene ubicacion guardada, comprobamos la distancia del cliente.
-            
             if (userLat == null || userLon == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este bar requiere ubicación. Activa tu GPS.");
             }
 
             double distanciaMetros = calcularDistancia(bar.getLatitude(), bar.getLongitude(), userLat, userLon);
-            
+
             log.info("Distancia calculada: {} metros. Bar=({}, {}) Cliente=({}, {})", distanciaMetros, bar.getLatitude(), bar.getLongitude(), userLat, userLon);
 
             // Limite segun enunciado. Ajustar si se necesita margen extra.
@@ -73,15 +67,49 @@ public class MusicService {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Estás demasiado lejos del bar (" + (int)distanciaMetros + "m). Acércate para pedir música.");
             }
         }
-        
+
+        // Consumimos el pago solo si todas las validaciones anteriores han pasado.
+        try {
+            paymentService.consumeSongPayment(email);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED, "Pago de canción no validado");
+        }
+
         Song song = new Song();
         song.setTitle(title);
         song.setArtist(artist);
         song.setUri(uri);
         song.setBar(bar);
+        song.setPriority(true); // Cancion pagada: se cuela al principio de la cola
 
         songDao.save(song);
         log.info("Canción guardada: {} para el bar: {}", title, bar.getBar());
+    }
+
+    public void addSongFree(String title, String artist, String uri, String email, String clientId, String password) {
+        // El propietario del bar añade canciones al catalogo sin pago
+        // Requiere contraseña para que los clientes no puedan añadir gratis desde el kiosco
+        if (email == null || email.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta el email del bar");
+        }
+        if (password == null || password.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Contraseña requerida para añadir al catálogo");
+        }
+        User bar = userDao.findById(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bar no encontrado"));
+        if (bar.getClientId() == null || !bar.getClientId().equals(clientId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El bar logueado no coincide con el clientId");
+        }
+        if (!bar.getPassword().equals(DigestUtils.sha512Hex(password))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Contraseña incorrecta");
+        }
+        Song song = new Song();
+        song.setTitle(title);
+        song.setArtist(artist);
+        song.setUri(uri);
+        song.setBar(bar);
+        songDao.save(song);
+        log.info("Canción añadida al catálogo gratuitamente: {} para el bar: {}", title, bar.getBar());
     }
 
     public List<Song> listSongsForBar(String email) {
@@ -91,7 +119,7 @@ public class MusicService {
         // Validamos que el bar exista antes de devolver la cola.
         userDao.findById(email)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bar no encontrado"));
-        return songDao.findByBar_EmailOrderByDateAsc(email);
+        return songDao.findByBar_EmailOrderByPriorityDescDateAsc(email);
     }
 
     private double calcularDistancia(double lat1, double lon1, double lat2, double lon2) {

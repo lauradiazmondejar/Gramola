@@ -72,7 +72,7 @@ class PaymentFlowIntegrationTests {
     @Test
     void suscripcionPagoOkMarcaUsuarioComoPagado() throws Exception {
         String email = "stripe-ok@test.com";
-        String token = userService.register("Bar Stripe OK", email, "12345678", "client-id", "client-secret", null, null, null);
+        String token = userService.register("Bar Stripe OK", email, "12345678", "client-id", "client-secret", null, null, null, null);
 
         String prepayJson = paymentService.prepay("subscription_monthly", email, "Bar Stripe OK", "subscription");
         JsonNode node = mapper.readTree(prepayJson);
@@ -94,7 +94,7 @@ class PaymentFlowIntegrationTests {
     @Test
     void suscripcionPagoFallidoNoMarcaPagado() throws Exception {
         String email = "stripe-ko@test.com";
-        String token = userService.register("Bar Stripe KO", email, "12345678", "client-id", "client-secret", null, null, null);
+        String token = userService.register("Bar Stripe KO", email, "12345678", "client-id", "client-secret", null, null, null, null);
 
         String prepayJson = paymentService.prepay("subscription_monthly", email, "Bar Stripe KO", "subscription");
         JsonNode node = mapper.readTree(prepayJson);

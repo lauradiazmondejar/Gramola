@@ -15,7 +15,39 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
+		<!-- Por defecto los tests Selenium están desactivados -->
+		<skipClientSongTests>true</skipClientSongTests>
+		<skipUiStripeTests>true</skipUiStripeTests>
 	</properties>
+
+	<profiles>
+		<!-- Activado con: mvn test -DrunClientSongTests=true -->
+		<profile>
+			<id>run-client-song-tests</id>
+			<activation>
+				<property>
+					<name>runClientSongTests</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<properties>
+				<skipClientSongTests>false</skipClientSongTests>
+			</properties>
+		</profile>
+		<!-- Activado con: mvn test -DrunUiStripeTests=true -->
+		<profile>
+			<id>run-ui-stripe-tests</id>
+			<activation>
+				<property>
+					<name>runUiStripeTests</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<properties>
+				<skipUiStripeTests>false</skipUiStripeTests>
+			</properties>
+		</profile>
+	</profiles>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -97,6 +129,42 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.2</version>
+				<configuration>
+					<!-- Excluir tests Selenium del run por defecto: arrancan servidor en 8080 -->
+					<excludes>
+						<exclude>**/ClientSongFlowSeleniumTest.java</exclude>
+						<exclude>**/UiSubscriptionSeleniumTests.java</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<!-- mvn test -DrunClientSongTests=true -->
+					<execution>
+						<id>selenium-client-song</id>
+						<goals><goal>test</goal></goals>
+						<configuration>
+							<skip>${skipClientSongTests}</skip>
+							<includes>
+								<include>**/ClientSongFlowSeleniumTest.java</include>
+							</includes>
+						</configuration>
+					</execution>
+					<!-- mvn test -DrunUiStripeTests=true -->
+					<execution>
+						<id>selenium-ui-stripe</id>
+						<goals><goal>test</goal></goals>
+						<configuration>
+							<skip>${skipUiStripeTests}</skip>
+							<includes>
+								<include>**/UiSubscriptionSeleniumTests.java</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

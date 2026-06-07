@@ -50,6 +50,10 @@
               </button>
             </div>
           </div>
+          <div class="input-group">
+            <label class="label">Precio por canción (€)</label>
+            <input type="number" [(ngModel)]="songPrice" placeholder="Ej: 0.50 (deja vacío para usar el precio global)" min="0" step="0.01">
+          </div>
           <div class="row">
             <div class="input-group" style="flex:1">
               <label class="label">Contraseña</label>

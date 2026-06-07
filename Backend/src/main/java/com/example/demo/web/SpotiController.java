@@ -1,6 +1,8 @@
 package com.example.demo.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,5 +27,12 @@ public class SpotiController {
     public SpotiToken getAuthorizationToken(@RequestParam String code, @RequestParam String clientId) {
         // Intercambia el codigo de Spotify por un token de acceso/refresh.
         return spotiService.getAuthorizationToken(code, clientId);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<String> search(@RequestParam String q, @RequestParam String token) {
+        // El front le pregunta al back, y el back le pregunta a Spotify
+        String result = spotiService.search(q, token);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(result);
     }
 }

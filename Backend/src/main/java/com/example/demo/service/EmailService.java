@@ -2,11 +2,11 @@ package com.example.demo.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import java.util.Locale;
 
 /**
  * Encapsula el envio de correos del flujo de negocio:
@@ -19,8 +19,8 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${app.frontend.host:http://127.0.0.1:4200}")
-    private String frontendHost;
+    @Autowired
+    private ConfigService configService;
 
     @Value("${spring.mail.username:}")
     private String from;
@@ -31,8 +31,8 @@ public class EmailService {
 
     public void sendRegistrationEmail(String to, String token) {
         // Construye enlaces de confirmacion y pago para nuevos registros.
-        String confirmUrl = "http://localhost:8080/users/confirmToken/" + to + "?token=" + token;
-        String paymentUrl = frontendHost + "/payment?token=" + token;
+        String confirmUrl = configService.getValue("app.backend.url") + "/users/confirmToken/" + to + "?token=" + token;
+        String paymentUrl = configService.getValue("app.frontend.url") + "/payment?token=" + token;
 
         String body = """
                 Bienvenido a la gramola.
@@ -61,7 +61,7 @@ public class EmailService {
 
     public void sendResetEmail(String to, String token) {
         // Genera correo con enlace para restablecer contrasena.
-        String resetUrl = frontendHost + "/reset?token=" + token;
+        String resetUrl = configService.getValue("app.frontend.url") + "/reset?token=" + token;
 
         String body = """
                 Has solicitado restablecer tu contraseña en la gramola.
