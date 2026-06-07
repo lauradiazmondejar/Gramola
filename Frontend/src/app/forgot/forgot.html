@@ -8,15 +8,17 @@
   </div>
 
   <div class="stack">
-    <!-- Formulario para solicitar correo de reseteo -->
     <div class="input-group">
-      <label>Email</label>
-      <input type="email" [(ngModel)]="email" placeholder="">
+      <label>Email <span class="required">*</span></label>
+      <input type="email" [(ngModel)]="email" placeholder=""
+             [class.input-error]="submitted && !email">
+      @if (submitted && !email) {
+        <span class="field-error">Campo obligatorio</span>
+      }
     </div>
     <button class="btn" (click)="solicitar()">Enviar enlace</button>
 
-    <p *ngIf="success" class="feedback success">{{ success }}</p>
-    <p *ngIf="error" class="feedback error">{{ error }}</p>
+    @if (success) { <p class="feedback success">{{ success }}</p> }
+    @if (error) { <p class="feedback error">{{ error }}</p> }
   </div>
 </div>
-

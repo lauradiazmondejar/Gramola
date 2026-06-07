@@ -31,6 +31,7 @@ export class Register implements AfterViewInit {
 
   registroOK = false;
   registroKO = false;
+  submitted = false;
 
   @ViewChild('canvasFirma') canvasRef!: ElementRef;
   private cx!: CanvasRenderingContext2D;
@@ -60,6 +61,7 @@ export class Register implements AfterViewInit {
 
   registrar() {
     // Valida los campos y llama al backend para crear el usuario.
+    this.submitted = true;
     this.registroOK = false;
     this.registroKO = false;
     this.errorMsg = undefined;
@@ -67,12 +69,12 @@ export class Register implements AfterViewInit {
     const signatureImage = this.canvasRef.nativeElement.toDataURL();
 
     if (!this.bar || !this.email || !this.pwd1 || !this.clientId || !this.clientSecret) {
-      this.errorMsg = 'Por favor, rellena todos los campos.';
       return;
     }
-
+    if (this.pwd1.length < 8) {
+      return;
+    }
     if (this.pwd1 !== this.pwd2) {
-      this.errorMsg = 'Las contraseñas no coinciden';
       return;
     }
 

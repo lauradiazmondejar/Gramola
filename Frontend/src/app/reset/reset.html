@@ -8,55 +8,64 @@
   </div>
 
   <div class="stack">
-    <!-- Formulario para introducir y confirmar la nueva contrasena -->
     <div class="input-group">
-      <label>Nueva contraseña</label>
+      <label>Nueva contraseña <span class="required">*</span></label>
       <div style="display:flex; gap:8px; align-items:center;">
-        <input [type]="showPwd1 ? 'text' : 'password'" [(ngModel)]="pwd1" style="flex:1">
+        <input [type]="showPwd1 ? 'text' : 'password'" [(ngModel)]="pwd1" style="flex:1"
+               [class.input-error]="submitted && !pwd1">
         <button type="button" class="btn btn-ghost" (click)="showPwd1 = !showPwd1">
-          <ng-container *ngIf="!showPwd1; else iconOffReset1">
+          @if (!showPwd1) {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
-          </ng-container>
-          <ng-template #iconOffReset1>
+          } @else {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M3 3l18 18" />
               <path d="M9.5 5.5a10.5 10.5 0 0 1 11 6.5 10.5 10.5 0 0 1-2.16 3.32" />
               <path d="M6.2 6.2A10.5 10.5 0 0 0 2 12c1.27 4.06 5.07 7 10 7 1.47 0 2.87-.32 4.13-.9" />
               <path d="M10.7 10.7a3 3 0 0 0 4.6 3.6" />
             </svg>
-          </ng-template>
+          }
         </button>
       </div>
+      @if (submitted && !pwd1) {
+        <span class="field-error">Campo obligatorio</span>
+      }
     </div>
+
     <div class="input-group">
-      <label>Confirmar contraseña</label>
+      <label>Confirmar contraseña <span class="required">*</span></label>
       <div style="display:flex; gap:8px; align-items:center;">
-        <input [type]="showPwd2 ? 'text' : 'password'" [(ngModel)]="pwd2" style="flex:1">
+        <input [type]="showPwd2 ? 'text' : 'password'" [(ngModel)]="pwd2" style="flex:1"
+               [class.input-error]="submitted && (!pwd2 || (!!pwd1 && !!pwd2 && pwd1 !== pwd2))">
         <button type="button" class="btn btn-ghost" (click)="showPwd2 = !showPwd2">
-          <ng-container *ngIf="!showPwd2; else iconOffReset2">
+          @if (!showPwd2) {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
-          </ng-container>
-          <ng-template #iconOffReset2>
+          } @else {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M3 3l18 18" />
               <path d="M9.5 5.5a10.5 10.5 0 0 1 11 6.5 10.5 10.5 0 0 1-2.16 3.32" />
               <path d="M6.2 6.2A10.5 10.5 0 0 0 2 12c1.27 4.06 5.07 7 10 7 1.47 0 2.87-.32 4.13-.9" />
               <path d="M10.7 10.7a3 3 0 0 0 4.6 3.6" />
             </svg>
-          </ng-template>
+          }
         </button>
       </div>
+      @if (submitted && !pwd2) {
+        <span class="field-error">Campo obligatorio</span>
+      }
+      @if (submitted && pwd1 && pwd2 && pwd1 !== pwd2) {
+        <span class="field-error">Las contraseñas no coinciden</span>
+      }
     </div>
+
     <button class="btn" (click)="reset()">Cambiar</button>
 
-    <p *ngIf="success" class="feedback success">{{ success }}</p>
-    <p *ngIf="error" class="feedback error">{{ error }}</p>
+    @if (success) { <p class="feedback success">{{ success }}</p> }
+    @if (error) { <p class="feedback error">{{ error }}</p> }
   </div>
 </div>
-

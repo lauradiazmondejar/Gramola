@@ -17,38 +17,56 @@
         </div>
         <div class="stack">
           <div class="input-group">
-            <label class="label">Nombre del bar</label>
-            <input type="text" [(ngModel)]="bar" placeholder="">
+            <label class="label">Nombre del bar <span class="required">*</span></label>
+            <input type="text" [(ngModel)]="bar" placeholder=""
+                   [class.input-error]="submitted && !bar">
+            @if (submitted && !bar) {
+              <span class="field-error">Campo obligatorio</span>
+            }
           </div>
           <div class="input-group">
-            <label class="label">Email</label>
-            <input type="email" [(ngModel)]="email" placeholder="">
+            <label class="label">Email <span class="required">*</span></label>
+            <input type="email" [(ngModel)]="email" placeholder=""
+                   [class.input-error]="submitted && (!email || (!!email && (!email.includes('@') || !email.includes('.'))))">
+            @if (submitted && !email) {
+              <span class="field-error">Campo obligatorio</span>
+            }
+            @if (submitted && email && (!email.includes('@') || !email.includes('.'))) {
+              <span class="field-error">Email no válido</span>
+            }
           </div>
           <div class="input-group">
-            <label class="label">Client ID (Spotify)</label>
-            <input type="text" [(ngModel)]="clientId" placeholder="">
+            <label class="label">Client ID (Spotify) <span class="required">*</span></label>
+            <input type="text" [(ngModel)]="clientId" placeholder=""
+                   [class.input-error]="submitted && !clientId">
+            @if (submitted && !clientId) {
+              <span class="field-error">Campo obligatorio</span>
+            }
           </div>
           <div class="input-group">
-            <label class="label">Client Secret (Spotify)</label>
+            <label class="label">Client Secret (Spotify) <span class="required">*</span></label>
             <div style="display:flex; gap:8px; align-items:center;">
-              <input [type]="showClientSecret ? 'text' : 'password'" [(ngModel)]="clientSecret" placeholder="" style="flex:1">
+              <input [type]="showClientSecret ? 'text' : 'password'" [(ngModel)]="clientSecret" placeholder="" style="flex:1"
+                     [class.input-error]="submitted && !clientSecret">
               <button type="button" class="btn btn-ghost" (click)="showClientSecret = !showClientSecret">
-                <ng-container *ngIf="!showClientSecret; else iconOffCs">
+                @if (!showClientSecret) {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z" />
                     <circle cx="12" cy="12" r="3" />
                   </svg>
-                </ng-container>
-                <ng-template #iconOffCs>
+                } @else {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M3 3l18 18" />
                     <path d="M9.5 5.5a10.5 10.5 0 0 1 11 6.5 10.5 10.5 0 0 1-2.16 3.32" />
                     <path d="M6.2 6.2A10.5 10.5 0 0 0 2 12c1.27 4.06 5.07 7 10 7 1.47 0 2.87-.32 4.13-.9" />
                     <path d="M10.7 10.7a3 3 0 0 0 4.6 3.6" />
                   </svg>
-                </ng-template>
+                }
               </button>
             </div>
+            @if (submitted && !clientSecret) {
+              <span class="field-error">Campo obligatorio</span>
+            }
           </div>
           <div class="input-group">
             <label class="label">Precio por canción (€)</label>
@@ -56,48 +74,60 @@
           </div>
           <div class="row">
             <div class="input-group" style="flex:1">
-              <label class="label">Contraseña</label>
+              <label class="label">Contraseña <span class="required">*</span></label>
               <div style="display:flex; gap:8px; align-items:center;">
-                <input [type]="showPwd1 ? 'text' : 'password'" [(ngModel)]="pwd1" placeholder="" style="flex:1">
+                <input [type]="showPwd1 ? 'text' : 'password'" [(ngModel)]="pwd1" placeholder="" style="flex:1"
+                       [class.input-error]="submitted && (!pwd1 || (!!pwd1 && pwd1.length < 8))">
                 <button type="button" class="btn btn-ghost" (click)="showPwd1 = !showPwd1">
-                  <ng-container *ngIf="!showPwd1; else iconOff1">
+                  @if (!showPwd1) {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z" />
                       <circle cx="12" cy="12" r="3" />
                     </svg>
-                  </ng-container>
-                  <ng-template #iconOff1>
+                  } @else {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <path d="M3 3l18 18" />
                       <path d="M9.5 5.5a10.5 10.5 0 0 1 11 6.5 10.5 10.5 0 0 1-2.16 3.32" />
                       <path d="M6.2 6.2A10.5 10.5 0 0 0 2 12c1.27 4.06 5.07 7 10 7 1.47 0 2.87-.32 4.13-.9" />
                       <path d="M10.7 10.7a3 3 0 0 0 4.6 3.6" />
                     </svg>
-                  </ng-template>
+                  }
                 </button>
               </div>
+              @if (submitted && !pwd1) {
+                <span class="field-error">Campo obligatorio</span>
+              }
+              @if (submitted && pwd1 && pwd1.length < 8) {
+                <span class="field-error">Mínimo 8 caracteres</span>
+              }
             </div>
             <div class="input-group" style="flex:1">
-              <label class="label">Confirmar contraseña</label>
+              <label class="label">Confirmar contraseña <span class="required">*</span></label>
               <div style="display:flex; gap:8px; align-items:center;">
-                <input [type]="showPwd2 ? 'text' : 'password'" [(ngModel)]="pwd2" placeholder="" style="flex:1">
+                <input [type]="showPwd2 ? 'text' : 'password'" [(ngModel)]="pwd2" placeholder="" style="flex:1"
+                       [class.input-error]="submitted && (!pwd2 || (!!pwd1 && !!pwd2 && pwd1 !== pwd2))">
                 <button type="button" class="btn btn-ghost" (click)="showPwd2 = !showPwd2">
-                  <ng-container *ngIf="!showPwd2; else iconOff2">
+                  @if (!showPwd2) {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z" />
                       <circle cx="12" cy="12" r="3" />
                     </svg>
-                  </ng-container>
-                  <ng-template #iconOff2>
+                  } @else {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <path d="M3 3l18 18" />
                       <path d="M9.5 5.5a10.5 10.5 0 0 1 11 6.5 10.5 10.5 0 0 1-2.16 3.32" />
                       <path d="M6.2 6.2A10.5 10.5 0 0 0 2 12c1.27 4.06 5.07 7 10 7 1.47 0 2.87-.32 4.13-.9" />
                       <path d="M10.7 10.7a3 3 0 0 0 4.6 3.6" />
                     </svg>
-                  </ng-template>
+                  }
                 </button>
               </div>
+              @if (submitted && !pwd2) {
+                <span class="field-error">Campo obligatorio</span>
+              }
+              @if (submitted && pwd1 && pwd2 && pwd1 !== pwd2) {
+                <span class="field-error">Las contraseñas no coinciden</span>
+              }
             </div>
           </div>
         </div>
@@ -138,15 +168,12 @@
       <p class="muted">Al registrar aceptas recibir el correo de confirmación.</p>
       <button class="btn" (click)="registrar()">Registrar bar</button>
     </div>
-    <!-- Mensajes de exito o error -->    <div *ngIf="errorMsg" class="feedback error">{{ errorMsg }}</div>
-    <div *ngIf="registroOK" class="feedback success">
-      Registro exitoso. Revisa tu correo para confirmar y pagar.
-    </div>
-    <div *ngIf="registroKO" class="feedback error">
-      Error en el registro. Revisa los datos o intenta de nuevo.
-    </div>
+
+    @if (errorMsg) {
+      <div class="feedback error">{{ errorMsg }}</div>
+    }
+    @if (registroOK) {
+      <div class="feedback success">Registro exitoso. Revisa tu correo para confirmar y pagar.</div>
+    }
   </div>
 </div>
-
-
-

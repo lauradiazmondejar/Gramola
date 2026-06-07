@@ -18,6 +18,7 @@ export class Login {
   pwd?: string;
   errorMsg?: string;
   showPwd = false;
+  submitted = false;
 
   // Datos para la conexion con Spotify (Paso 1 del OAuth). Ajusta redirectUrl igual que en el dashboard de Spotify.
   spoti = {
@@ -37,9 +38,9 @@ export class Login {
   constructor(private service: UserService, private router: Router) {}
 
   loguear() {
+    this.submitted = true;
     // Valida credenciales y almacena datos en sessionStorage.
     if (!this.email || !this.pwd) {
-      this.errorMsg = "Rellena todos los campos";
       return;
     }
 

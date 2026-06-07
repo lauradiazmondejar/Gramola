@@ -19,6 +19,7 @@ export class Reset implements OnInit {
   error?: string;
   showPwd1 = false;
   showPwd2 = false;
+  submitted = false;
 
   constructor(private route: ActivatedRoute, private router: Router, private userService: UserService) {}
 
@@ -31,6 +32,7 @@ export class Reset implements OnInit {
   }
 
   reset() {
+    this.submitted = true;
     // Valida las nuevas contrasenas y llama al backend.
     this.success = undefined;
     this.error = undefined;
@@ -38,8 +40,7 @@ export class Reset implements OnInit {
       this.error = 'Falta token';
       return;
     }
-    if (!this.pwd1 || !this.pwd2) {
-      this.error = 'Introduce la nueva contraseña en ambos campos';
+    if (!this.pwd1 || !this.pwd2 || this.pwd1 !== this.pwd2) {
       return;
     }
     this.userService.confirmReset(this.token, this.pwd1, this.pwd2).subscribe({

@@ -10,33 +10,39 @@
     </div>
 
     <div class="stack">
-      <!-- Formulario de acceso y toggle de visibilidad de contrasena -->
       <div class="input-group">
-        <label>Email</label>
-        <input type="email" [(ngModel)]="email" name="email" placeholder="">
+        <label>Email <span class="required">*</span></label>
+        <input type="email" [(ngModel)]="email" name="email" placeholder=""
+               [class.input-error]="submitted && !email">
+        @if (submitted && !email) {
+          <span class="field-error">Campo obligatorio</span>
+        }
       </div>
 
       <div class="input-group">
-        <label>Contraseña</label>
+        <label>Contraseña <span class="required">*</span></label>
         <div style="display:flex; gap:8px; align-items:center;">
-          <input [type]="showPwd ? 'text' : 'password'" [(ngModel)]="pwd" name="password" placeholder="" style="flex:1">
+          <input [type]="showPwd ? 'text' : 'password'" [(ngModel)]="pwd" name="password" placeholder="" style="flex:1"
+                 [class.input-error]="submitted && !pwd">
           <button type="button" class="btn btn-ghost" (click)="showPwd = !showPwd">
-            <ng-container *ngIf="!showPwd; else iconOffLogin">
+            @if (!showPwd) {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
-            </ng-container>
-            <ng-template #iconOffLogin>
+            } @else {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M3 3l18 18" />
                 <path d="M9.5 5.5a10.5 10.5 0 0 1 11 6.5 10.5 10.5 0 0 1-2.16 3.32" />
                 <path d="M6.2 6.2A10.5 10.5 0 0 0 2 12c1.27 4.06 5.07 7 10 7 1.47 0 2.87-.32 4.13-.9" />
                 <path d="M10.7 10.7a3 3 0 0 0 4.6 3.6" />
               </svg>
-            </ng-template>
+            }
           </button>
         </div>
+        @if (submitted && !pwd) {
+          <span class="field-error">Campo obligatorio</span>
+        }
       </div>
 
       <button class="btn full" (click)="loguear()">Entrar y conectar Spotify</button>
@@ -46,8 +52,7 @@
         <a routerLink="/forgot">Recupérala aquí</a>
       </div>
 
-      <p *ngIf="errorMsg" class="feedback error">{{ errorMsg }}</p>
+      @if (errorMsg) { <p class="feedback error">{{ errorMsg }}</p> }
     </div>
   </div>
 </div>
-

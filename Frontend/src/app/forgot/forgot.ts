@@ -14,15 +14,16 @@ export class Forgot {
   email = '';
   success?: string;
   error?: string;
+  submitted = false;
 
   constructor(private userService: UserService) {}
 
   solicitar() {
+    this.submitted = true;
     // Pide al backend el envio del correo de reseteo.
     this.success = undefined;
     this.error = undefined;
     if (!this.email) {
-      this.error = 'Introduce el email';
       return;
     }
     this.userService.requestReset(this.email).subscribe({
