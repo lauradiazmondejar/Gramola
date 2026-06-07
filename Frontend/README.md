@@ -25,10 +25,10 @@ Equivale a `ng serve --host 127.0.0.1 --port 4200`.
 
 ## Novedades convocatoria extraordinaria
 
-- **Búsqueda de canciones** — el componente `music` llama al backend (`/music/search`), que a su vez consulta Spotify usando el token del bar
-- **Cola con prioridad** — las canciones de pago aparecen antes en la cola
-- **Geolocalización** — al reproducir una canción, se envían las coordenadas del cliente al backend
-- **`environment.ts`** — URL del backend centralizada; no hay URLs hardcodeadas en los componentes
+- **Búsqueda de canciones**: el componente `music` llama al backend (`/music/search`), que a su vez consulta Spotify usando el token del bar
+- **Cola con prioridad**: las canciones de pago aparecen antes en la cola
+- **Geolocalización**: al reproducir una canción, se envían las coordenadas del cliente al backend
+- **`environment.ts`**: URL del backend centralizada; no hay URLs hardcodeadas en los componentes
 
 ## Notas
 

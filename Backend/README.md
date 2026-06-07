@@ -7,7 +7,7 @@ API REST de la gramola: usuarios, pagos, música, correo y cola de canciones.
 - Java 17+
 - Maven 3.x
 - MySQL 8
-- Mailpit (SMTP local, sin auth) — `brew install mailpit`
+- Mailpit
 - Cuenta Stripe (clave de test)
 
 ## Configuración
@@ -29,8 +29,8 @@ source .env
 
 El archivo `src/main/resources/data.sql` se ejecuta automáticamente al arrancar y puebla:
 
-- Tabla `price` — importes de suscripción y canción
-- Tabla `config` — URLs de Spotify, frontend, backend y callback
+- Tabla `price`: importes de suscripción y canción
+- Tabla `config`: URLs de Spotify, frontend, backend y callback
 
 ## Ejecutar
 
@@ -67,7 +67,7 @@ mvn test -DrunClientSongTests=true
 
 ### Test de carga JMeter
 
-Sembrear 1000 usuarios (el seeder usa MySQL, por eso se renombra application.properties temporalmente):
+Sembrar 1000 usuarios (el seeder usa MySQL, por eso se renombra application.properties temporalmente):
 
 ```bash
 mv src/main/resources/application.properties src/main/resources/application.properties.old
@@ -85,12 +85,12 @@ mv src/main/resources/application.properties.old src/main/resources/application.
 
 ## Novedades convocatoria extraordinaria
 
-- `Config` — entidad/DAO/servicio para guardar URLs y credenciales en BD
-- `Song.priority` — booleano para gestionar la cola (canciones de pago se cuelan)
-- `MusicService` — geolocalización del cliente antes de reproducir; pago se consume solo tras validar
-- `SpotiService` — búsqueda proxiada de canciones (frontend → backend → Spotify)
-- `SecretEncryptionService` — cifrado AES-256/GCM del `clientSecret` de Spotify
-- Correo: Mailtrap reemplazado por Mailpit (sin credenciales externas)
+- `Config`: entidad/DAO/servicio para guardar URLs y credenciales en BD
+- `Song.priority`: booleano para gestionar la cola (canciones de pago se cuelan)
+- `MusicService`: geolocalización del cliente antes de reproducir; pago se consume solo tras validar
+- `SpotiService`: búsqueda proxiada de canciones (frontend -> backend -> Spotify)
+- `SecretEncryptionService`: cifrado AES-256/GCM del `clientSecret` de Spotify
+- Correo: Mailtrap reemplazado por Mailpit
 
 ## Notas
 

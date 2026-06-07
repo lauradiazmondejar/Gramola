@@ -10,20 +10,20 @@ Repositorio de Laura Díaz Mondéjar para el laboratorio de Tecnologías y Siste
 | `main` | Convocatoria extraordinaria (rama activa) |
 
 ## Estructura
-- `Backend/` — Spring Boot 3 (API REST)
-- `Frontend/` — Angular 20
+- `Backend/`: Spring Boot 3 (API REST)
+- `Frontend/`: Angular 20
 
 ## Novedades de la convocatoria extraordinaria
 
-- **Cola de canciones con prioridad** — canciones de pago se cuelan delante de las del catálogo (`priority` en entidad `Song`)
-- **Búsqueda de canciones proxiada** — el frontend pide la búsqueda al backend, que la reenvía a Spotify con el token del bar
-- **Precios en base de datos** — importes de suscripción y canción en tabla `price`, leídos en tiempo de ejecución
-- **URLs y configuración en base de datos** — credenciales Spotify, URLs de callback, etc. en tabla `config`
-- **Cifrado AES-256/GCM del `clientSecret` de Spotify** — se guarda cifrado en `config`, se descifra en memoria
-- **Geolocalización** — el cliente envía coordenadas al reproducir; el backend rechaza si está demasiado lejos del bar
-- **Correo local con Mailpit** — sustituye a Mailtrap; sin necesidad de credenciales externas
-- **Test de carga JMeter** — plan en `Backend/src/test/jmeter/`, seeder de 1000 usuarios incluido
-- **Test Selenium `ClientSongFlowSeleniumTest`** — flujo completo cliente: buscar, pagar canción y reproducir
+- **Cola de canciones con prioridad**: canciones de pago se cuelan delante de las del catálogo (`priority` en entidad `Song`)
+- **Búsqueda de canciones proxiada**: el frontend pide la búsqueda al backend, que la reenvía a Spotify con el token del bar
+- **Precios en base de datos**: importes de suscripción y canción en tabla `price`, leídos en tiempo de ejecución
+- **URLs y configuración en base de datos**: credenciales Spotify, URLs de callback, etc. en tabla `config`
+- **Cifrado AES-256/GCM del `clientSecret` de Spotify**: se guarda cifrado en `config`, se descifra en memoria
+- **Geolocalización**: el cliente envía coordenadas al reproducir; el backend rechaza si está demasiado lejos del bar
+- **Correo con Mailpit**: sustituye a Mailtrap
+- **Test de carga JMeter**: plan en `Backend/src/test/jmeter/`, seeder de 1000 usuarios incluido
+- **Test Selenium `ClientSongFlowSeleniumTest`**: flujo completo cliente: buscar, pagar canción y reproducir
 
 ## Requisitos
 
@@ -31,7 +31,7 @@ Repositorio de Laura Díaz Mondéjar para el laboratorio de Tecnologías y Siste
 - Maven 3.x
 - Node.js 18+ y npm
 - MySQL 8
-- [Mailpit](https://mailpit.axllent.org/) (SMTP local, sin auth)
+- Mailpit
 - Cuenta Stripe (clave de test)
 
 ## Variables de entorno
@@ -47,11 +47,11 @@ El archivo `.env` en `Backend/` (no versionado) la exporta:
 source Backend/.env
 ```
 
-## Ejecutar Mailpit (servidor de correo local)
+## Ejecutar Mailpit
 
 ```bash
 brew install mailpit   # solo la primera vez
-mailpit                # arranca en localhost:1025 (SMTP) y localhost:8025 (web)
+mailpit                # arranca en localhost:1025 y localhost:8025 (web)
 ```
 
 ## Ejecutar backend
