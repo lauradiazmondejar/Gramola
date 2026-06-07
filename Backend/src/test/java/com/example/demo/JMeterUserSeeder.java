@@ -22,8 +22,7 @@ import com.example.demo.model.User;
  * Para limpiar los usuarios tras el test:
  *   mvn test -DrunJMeterSeeder=true -DjmeterClean=true
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
-        properties = { "server.port=8080" })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class JMeterUserSeeder {
 
     @Autowired

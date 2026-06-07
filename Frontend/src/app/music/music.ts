@@ -36,7 +36,7 @@ export class Music implements OnInit {
   simulatePlayback = true; // Fallback sin Premium.
   backendBase = environment.backendUrl;
 
-  stripe = Stripe('pk_test_51SIV2CRfAGkgoJHtjzPD344TigvazTauIQXxhm98Tk78mAuc7H79dD9XWvSO8cIfKNG8DS5MvEw5ldw6LhfUuEsg00QDV18Afz');
+  stripe = Stripe(environment.stripePublicKey);
   elements: any;
   card: any;
   clientSecret: string = '';

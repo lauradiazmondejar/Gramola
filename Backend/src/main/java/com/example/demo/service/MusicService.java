@@ -42,12 +42,6 @@ public class MusicService {
         if (clientId == null || clientId.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ClientId vacío en la petición");
         }
-        // Consumimos un pago de cancion si hay.
-        try {
-            paymentService.consumeSongPayment(email);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED, "Pago de canción no validado");
-        }
 
         // Buscar al bar dueno de la sesion por email.
         User bar = userDao.findById(email)
@@ -60,13 +54,12 @@ public class MusicService {
 
         if (bar.getLatitude() != null && bar.getLongitude() != null) {
             // Si el bar tiene ubicacion guardada, comprobamos la distancia del cliente.
-            
             if (userLat == null || userLon == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este bar requiere ubicación. Activa tu GPS.");
             }
 
             double distanciaMetros = calcularDistancia(bar.getLatitude(), bar.getLongitude(), userLat, userLon);
-            
+
             log.info("Distancia calculada: {} metros. Bar=({}, {}) Cliente=({}, {})", distanciaMetros, bar.getLatitude(), bar.getLongitude(), userLat, userLon);
 
             // Limite segun enunciado. Ajustar si se necesita margen extra.
@@ -74,7 +67,14 @@ public class MusicService {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Estás demasiado lejos del bar (" + (int)distanciaMetros + "m). Acércate para pedir música.");
             }
         }
-        
+
+        // Consumimos el pago solo si todas las validaciones anteriores han pasado.
+        try {
+            paymentService.consumeSongPayment(email);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED, "Pago de canción no validado");
+        }
+
         Song song = new Song();
         song.setTitle(title);
         song.setArtist(artist);

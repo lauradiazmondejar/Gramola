@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaymentService } from '../payment';
 import { Router, ActivatedRoute } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 declare let Stripe: any;
 
@@ -15,7 +16,7 @@ declare let Stripe: any;
 })
 // Pantalla de pago de suscripcion via Stripe.
 export class Payment implements OnInit {
-  stripe = Stripe('pk_test_51SIV2CRfAGkgoJHtjzPD344TigvazTauIQXxhm98Tk78mAuc7H79dD9XWvSO8cIfKNG8DS5MvEw5ldw6LhfUuEsg00QDV18Afz');
+  stripe = Stripe(environment.stripePublicKey);
 
   elements: any;
   card: any;

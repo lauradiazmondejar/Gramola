@@ -71,7 +71,7 @@ export class SpotiService {
   }
 
   startTracks(uris: string[], deviceId: string): Observable<any> {
-    // Reproduce una lista de URIs de canciones directamente 
+    // Reproduce una lista de URIs de canciones directamente
     const headers = this.getHeaders();
     const url = `${this.spotifyApiUrl}/me/player/play?device_id=${deviceId}`;
     return this.http.put(url, { uris }, { headers });

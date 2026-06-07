@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -41,6 +42,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = { "server.port=8080" })
 @ActiveProfiles("test")
+@EnabledIfSystemProperty(named = "runUiStripeTests", matches = "true")
 class UiSubscriptionSeleniumTests {
 
     @Value("${e2e.base-url:http://127.0.0.1:4200}")
