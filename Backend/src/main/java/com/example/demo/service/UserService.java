@@ -144,6 +144,7 @@ public class UserService {
         userDao.deleteById(email);
     }
 
+    // Versión anterior, sustituida por authenticate(). No se usa.
     public String login(String email, String pwd) {
         // Autentica y devuelve el clientId para configurar el front.
         User user = userDao.findById(email)
