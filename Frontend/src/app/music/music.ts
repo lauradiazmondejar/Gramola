@@ -414,7 +414,7 @@ export class Music implements OnInit {
   }
 
   add(track: any) {
-    // Valida ubicacion/pago y encola la cancion en Spotify.
+    // Version anterior, sustituida por solicitarCancion(). No se usa.
     if (!this.currentDevice) {
       this.errorMsg = 'No hay ningun dispositivo activo. Dale al Play en Spotify primero.';
       return;
