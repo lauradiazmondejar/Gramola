@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SpotiService } from '../spoti';
-import { HttpClient } from '@angular/common/http';
+import { MusicService } from '../music';
 import { PaymentService } from '../payment';
 import { UserService } from '../user';
 import { environment } from '../../environments/environment';
@@ -34,8 +34,6 @@ export class Music implements OnInit {
   currentPlaylistTracks: any[] = [];
   isPlaying = false;
   simulatePlayback = true; // Fallback sin Premium.
-  backendBase = environment.backendUrl;
-
   stripe = Stripe(environment.stripePublicKey);
   elements: any;
   card: any;
@@ -60,7 +58,7 @@ export class Music implements OnInit {
 
   constructor(
     private spotiService: SpotiService,
-    private http: HttpClient,
+    private musicService: MusicService,
     private paymentService: PaymentService,
     private userService: UserService
   ) {}
@@ -85,15 +83,15 @@ export class Music implements OnInit {
     // Carga la lista de canciones del bar desde el backend
     const email = sessionStorage.getItem('email');
     if (!email) return;
-    this.http.get<any[]>(`${this.backendBase}/music/queue?email=${encodeURIComponent(email)}`).subscribe({
-      next: (songs) => {
+    this.musicService.getQueue(email).subscribe({
+      next: (songs: any[]) => {
         this.catalogoBar = songs.map((s: any) => ({
           name: s.title,
           artists: [{ name: s.artist }],
           uri: s.uri
         }));
       },
-      error: (err) => console.error('No se pudo cargar el catálogo del bar', err)
+      error: (err: any) => console.error('No se pudo cargar el catálogo del bar', err)
     });
   }
 
@@ -126,7 +124,7 @@ export class Music implements OnInit {
       clientId: clientId,
       password: this.catalogoPassword
     };
-    this.http.post(`${this.backendBase}/music/add-free`, body).subscribe({
+    this.musicService.addSongFree(body).subscribe({
       next: () => {
         this.verificandoCatalogo = false;
         this.confirmandoCatalogo = false;
@@ -136,7 +134,7 @@ export class Music implements OnInit {
         setTimeout(() => this.successMsg = '', 3000);
         this.cargarCatalogoBar();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.verificandoCatalogo = false;
         this.catalogoError = err?.error?.message || 'Contraseña incorrecta o error al añadir.';
       }
@@ -606,12 +604,12 @@ export class Music implements OnInit {
             lon: lon
         };
 
-        this.http.post(`${this.backendBase}/music/add`, body).subscribe({
+        this.musicService.addSong(body).subscribe({
             next: () => {
                 console.log('Cancion validada en backend.');
                 if (onOk) { onOk(); }
             },
-            error: (e) => {
+            error: (e: any) => {
                 console.error('Error guardando en BD', e);
                 if (onError) { onError(e); }
                 if (e.status === 403) {
@@ -642,10 +640,10 @@ export class Music implements OnInit {
     // Carga la cola desde el backend para simular reproduccion sin Premium.
     const email = sessionStorage.getItem('email');
     if (!email) { return; }
-    this.http.get(`${this.backendBase}/music/queue?email=${encodeURIComponent(email)}`).subscribe({
-      next: (songs: any) => {
+    this.musicService.getQueue(email).subscribe({
+      next: (songs: any[]) => {
         // Normalizamos al formato usado en la vista (name + artists[0].name).
-        const mapped = (songs as any[]).map((s: any) => ({
+        const mapped = songs.map((s: any) => ({
           name: s.title,
           artists: [{ name: s.artist }],
           uri: s.uri
@@ -654,7 +652,7 @@ export class Music implements OnInit {
         this.nowPlaying = mapped[0] || null;
         this.successMsg = this.successMsg || 'Reproduccion simulada en cola local.';
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('No se pudo cargar la cola local', err);
       }
     });
