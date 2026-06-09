@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
+import { Song } from './models/song.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,8 @@ export class MusicService {
 
   constructor(private http: HttpClient) {}
 
-  getQueue(email: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.base}/music/queue?email=${encodeURIComponent(email)}`);
+  getQueue(email: string): Observable<Song[]> {
+    return this.http.get<Song[]>(`${this.base}/music/queue?email=${encodeURIComponent(email)}`);
   }
 
   addSong(body: {

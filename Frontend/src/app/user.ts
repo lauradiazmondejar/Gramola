@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
+import { LoginResponse, RegisterRequest } from './models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,35 +15,22 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   // Registro completo del bar (incluye datos de Spotify y firma).
-  register(bar: string, email: string, pwd1: string, pwd2: string, clientId: string, clientSecret: string, lat?: number, lon?: number, signature?: string, songPriceCents?: number) {
-    // Construye el cuerpo de registro y lo envia al backend.
-    let info = {
-      bar: bar,
-      email: email,
-      pwd1: pwd1,
-      pwd2: pwd2,
-      clientId: clientId,
-      clientSecret: clientSecret,
-      lat: lat,
-      lon: lon,
-      signature: signature,
-      songPriceCents: songPriceCents
-    }
-    return this.http.post<any>(this.apiUrl, info);
+  register(bar: string, email: string, pwd1: string, pwd2: string, clientId: string, clientSecret: string, lat?: number, lon?: number, signature?: string, songPriceCents?: number): Observable<void> {
+    const info: RegisterRequest = { bar, email, pwd1, pwd2, clientId, clientSecret, lat, lon, signature, songPriceCents };
+    return this.http.post<void>(this.apiUrl, info);
   }
 
-  login(email: string, pwd: string): Observable<any> {
+  login(email: string, pwd: string): Observable<LoginResponse> {
     // Solicita login y espera clientId y firma de respuesta.
     let info = {
       email: email,
       password: pwd
     };
     // Esperamos JSON con clientId y firma.
-    return this.http.post(this.apiUrl.replace('register', 'login'), info);
+    return this.http.post<LoginResponse>(this.apiUrl.replace('register', 'login'), info);
   }
 
-  verifyPassword(email: string, pwd: string): Observable<any> {
-    // Verifica credenciales sin alterar el flujo del login.
+  verifyPassword(email: string, pwd: string): Observable<LoginResponse> {
     return this.login(email, pwd);
   }
 

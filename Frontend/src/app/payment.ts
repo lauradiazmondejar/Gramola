@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
+import { Price, StripeConfirmRequest } from './models/payment.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,25 +21,22 @@ export class PaymentService {
   }
 
   // Paso 2: confirmar al backend que el pago se ha realizado.
-  confirm(stripeResponse: any, internalId: string, token: string | null): Observable<any> {
-    // Enviamos los datos necesarios para que el backend active la cuenta.
-    let info = {
+  confirm(stripeResponse: any, internalId: string, token: string | null): Observable<string> {
+    const info: StripeConfirmRequest = {
       stripeId: stripeResponse.paymentIntent.id,
-      internalId: internalId,
-      token: token
+      internalId,
+      token
     };
     return this.http.post(`${this.apiUrl}/confirm`, info, { responseType: 'text' });
   }
 
-  getPrice(code: string, email?: string): Observable<any> {
-    // Recupera el precio: personalizado por bar si se pasa email, global en otro caso
+  getPrice(code: string, email?: string): Observable<Price> {
     let url = `${this.apiUrl}/prices/${code}`;
     if (email) url += `?email=${encodeURIComponent(email)}`;
-    return this.http.get(url);
+    return this.http.get<Price>(url);
   }
 
-  listPrices(): Observable<any> {
-    // Devuelve todos los precios disponibles para pintar la UI.
-    return this.http.get(`${this.apiUrl}/prices`);
+  listPrices(): Observable<Price[]> {
+    return this.http.get<Price[]>(`${this.apiUrl}/prices`);
   }
 }

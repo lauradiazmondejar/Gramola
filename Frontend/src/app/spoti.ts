@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
+import { SpotiToken, SpotiDevice, SpotiPlaylist, SpotiTrack } from './models/spoti.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,27 +14,24 @@ export class SpotiService {
 
   constructor(private http: HttpClient) {}
 
-  getAuthorizationToken(code: string): Observable<any> {
-    // Intercambia el code devuelto por Spotify por tokens de acceso.
+  getAuthorizationToken(code: string): Observable<SpotiToken> {
     const clientId = sessionStorage.getItem('clientId');
-    return this.http.get(`${this.apiUrl}/getAuthorizationToken?code=${code}&clientId=${clientId}`);
+    return this.http.get<SpotiToken>(`${this.apiUrl}/getAuthorizationToken?code=${code}&clientId=${clientId}`);
   }
 
-  getDevices(): Observable<any> {
-    // Consulta dispositivos activos del usuario en Spotify.
+  getDevices(): Observable<{ devices: SpotiDevice[] }> {
     const headers = this.getHeaders();
-    return this.http.get(`${this.spotifyApiUrl}/me/player/devices`, { headers });
+    return this.http.get<{ devices: SpotiDevice[] }>(`${this.spotifyApiUrl}/me/player/devices`, { headers });
   }
 
-  getPlaylists(): Observable<any> {
+  getPlaylists(): Observable<{ items: SpotiPlaylist[] }> {
     const headers = this.getHeaders();
-    return this.http.get(`${this.spotifyApiUrl}/me/playlists`, { headers });
+    return this.http.get<{ items: SpotiPlaylist[] }>(`${this.spotifyApiUrl}/me/playlists`, { headers });
   }
 
-  getPlaylist(id: string): Observable<any> {
-    // Recupera detalle de una playlist concreta.
+  getPlaylist(id: string): Observable<SpotiPlaylist & { tracks: { items: { track: SpotiTrack }[] } }> {
     const headers = this.getHeaders();
-    return this.http.get(`${this.spotifyApiUrl}/playlists/${id}`, { headers });
+    return this.http.get<SpotiPlaylist & { tracks: { items: { track: SpotiTrack }[] } }>(`${this.spotifyApiUrl}/playlists/${id}`, { headers });
   }
 
   getCurrentPlayback(): Observable<any> {
