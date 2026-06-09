@@ -1,3 +1,10 @@
+// =============================================================================
+// VERSIÓN ANTERIOR — NO SE USA
+// Este componente fue una demo de geolocalización (ciudad + clima).
+// La geolocalización real del proyecto se hace en music/music.ts directamente
+// con navigator.geolocation.getCurrentPosition(), sin pasar por este componente.
+// =============================================================================
+
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
