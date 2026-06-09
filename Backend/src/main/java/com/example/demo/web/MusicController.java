@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,5 +64,11 @@ public class MusicController {
     public java.util.List<com.example.demo.model.Song> listQueue(@RequestParam String email) {
         // Devuelve la cola de canciones asociada al bar del usuario.
         return musicService.listSongsForBar(email);
+    }
+
+    @PatchMapping("/queue/deprioritize")
+    public void deprioritize(@RequestParam String email) {
+        // Al reproducir el catalogo, las canciones pagadas pasan a catalogo normal.
+        musicService.deprioritizeAll(email);
     }
 }

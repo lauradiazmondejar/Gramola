@@ -12,4 +12,7 @@ import java.util.List;
 public interface SongDao extends JpaRepository<Song, Long> {
     // Canciones de pago (priority=true) primero, luego catalogo por fecha
     List<Song> findByBar_EmailOrderByPriorityDescDateAsc(String email);
+
+    // Canciones pagadas pendientes de reproducir para un bar
+    List<Song> findByBar_EmailAndPriorityTrue(String email);
 }

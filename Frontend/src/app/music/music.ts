@@ -343,24 +343,46 @@ export class Music implements OnInit {
   }
 
   private iniciarReproduccionCatalogo() {
-    const uris = this.catalogoBar.map((s: any) => s.uri).filter(Boolean);
-    if (uris.length === 0) {
-      this.errorMsg = 'No hay canciones válidas en el catálogo para reproducir.';
-      return;
-    }
-    this.spotiService.startTracks(uris, this.currentDevice.id).subscribe({
+    const email = sessionStorage.getItem('email');
+    if (!email) return;
+
+    this.musicService.deprioritizeAll(email).subscribe({
       next: () => {
-        this.currentPlaylistName = 'Catálogo del bar';
-        this.currentPlaylistTracks = [...this.catalogoBar];
-        this.isPlaying = true;
-        setTimeout(() => {
-          this.cargarPlaybackActual();
-          this.cargarCola();
-        }, 400);
+        this.musicService.getQueue(email).subscribe({
+          next: (songs: any[]) => {
+            const uris = songs.map((s: any) => s.uri).filter(Boolean);
+            if (uris.length === 0) {
+              this.errorMsg = 'No hay canciones válidas en el catálogo para reproducir.';
+              return;
+            }
+            this.catalogoBar = songs.map((s: any) => ({
+              name: s.title, artists: [{ name: s.artist }], uri: s.uri
+            }));
+            this.spotiService.startTracks(uris, this.currentDevice.id).subscribe({
+              next: () => {
+                this.currentPlaylistName = 'Catálogo del bar';
+                this.currentPlaylistTracks = [...this.catalogoBar];
+                this.isPlaying = true;
+                setTimeout(() => {
+                  this.cargarPlaybackActual();
+                  this.cargarCola();
+                }, 400);
+              },
+              error: (err) => {
+                console.error(err);
+                this.errorMsg = 'Spotify no pudo reproducir el catálogo (verifica cuenta Premium y permisos).';
+              }
+            });
+          },
+          error: (err) => {
+            console.error(err);
+            this.errorMsg = 'No se pudo cargar el catálogo del bar.';
+          }
+        });
       },
       error: (err) => {
         console.error(err);
-        this.errorMsg = 'Spotify no pudo reproducir el catálogo (verifica cuenta Premium y permisos).';
+        this.errorMsg = 'Error al actualizar la cola.';
       }
     });
   }

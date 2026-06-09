@@ -30,4 +30,8 @@ export class MusicService {
   }): Observable<any> {
     return this.http.post(`${this.base}/music/add-free`, body);
   }
+
+  deprioritizeAll(email: string): Observable<void> {
+    return this.http.patch<void>(`${this.base}/music/queue/deprioritize?email=${encodeURIComponent(email)}`, {});
+  }
 }

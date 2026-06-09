@@ -116,10 +116,16 @@ public class MusicService {
         if (email == null || email.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta el email del bar");
         }
-        // Validamos que el bar exista antes de devolver la cola.
         userDao.findById(email)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bar no encontrado"));
         return songDao.findByBar_EmailOrderByPriorityDescDateAsc(email);
+    }
+
+    public void deprioritizeAll(String email) {
+        // Al reproducir el catálogo, las canciones pagadas ya se han colado: dejan de tener prioridad
+        List<Song> pagadas = songDao.findByBar_EmailAndPriorityTrue(email);
+        pagadas.forEach(s -> s.setPriority(false));
+        songDao.saveAll(pagadas);
     }
 
     private double calcularDistancia(double lat1, double lon1, double lat2, double lon2) {
