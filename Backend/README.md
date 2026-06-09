@@ -67,20 +67,20 @@ mvn test -DrunClientSongTests=true
 
 ### Test de carga JMeter
 
-Sembrar 1000 usuarios (el seeder usa MySQL, por eso se renombra application.properties temporalmente):
+Sembrar 1000 usuarios (hay que quitar el application.properties de test para que Spring use el de main, que apunta a MySQL):
 
 ```bash
-mv src/main/resources/application.properties src/main/resources/application.properties.old
+mv src/test/resources/application.properties src/test/resources/application.properties.old
 mvn test -DrunJMeterSeeder=true -Dtest=JMeterUserSeeder
-mv src/main/resources/application.properties.old src/main/resources/application.properties
+mv src/test/resources/application.properties.old src/test/resources/application.properties
 ```
 
 Limpiar usuarios de carga:
 
 ```bash
-mv src/main/resources/application.properties src/main/resources/application.properties.old
+mv src/test/resources/application.properties src/test/resources/application.properties.old
 mvn test -DrunJMeterSeeder=true -DjmeterClean=true -Dtest=JMeterUserSeeder
-mv src/main/resources/application.properties.old src/main/resources/application.properties
+mv src/test/resources/application.properties.old src/test/resources/application.properties
 ```
 
 ## Novedades convocatoria extraordinaria
